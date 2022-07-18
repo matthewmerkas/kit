@@ -1,23 +1,11 @@
-# Menu API
+# KIT (Keeping In Touch) Node.js Backend
 
-Order management system
+Matthew Merkas 2022 Thesis Project
 
 Features:
 
-- Mobile ordering
-  - No login required
-  - Open web app and autofill seating location with NFC tags/QR codes
-  - Cart, notes, etc.
-- Management console
-  - Configure venues, seating locations, menus, and menu items
-  - Images
-  - Titles
-  - Descriptions
-  - View orders in real time
-  - Display recipe for current order
-  - Intelligently groups duplicate orders
-  - Mark orders as complete
-  - Feedback sent to mobile clients
+- Asynchronous audio messaging
+- Speech recognition
 
 Environment Variables:
 
@@ -31,6 +19,6 @@ Environment Variables:
 
 ## Development
 
-Create an admin user with `npm run createAdmin`
+Create a user with `npm run createUser`
 
 Run the development server with `npm run dev`

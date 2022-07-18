@@ -8,7 +8,7 @@ import mongoose, { Model } from 'mongoose'
 
 import { HttpError } from '../../bin/errors'
 import { Filter, QueryParams, SoftDeletes, User } from '../../bin/types'
-import { isAdmin, isManager, validateUser } from '../../bin/user'
+import { validateUser } from '../../bin/user'
 
 export class BaseController {
   Model: Model<any>
@@ -19,18 +19,11 @@ export class BaseController {
     this.populateKeys = populateKeys
   }
 
-  // Filter results based on user privileges
+  // Filter results based on user ID
   getFilter = (id?: string, user?: User) => {
     const filter: Filter = id ? { _id: id } : {}
-    if (this.Model.schema.obj.organisationId?.required != null) {
-      if (!isAdmin(user) && isManager(user)) {
-        filter.organisationId = user?.organisationId
-      }
-    }
     if (this.Model.schema.obj.userId != null) {
-      if (!isAdmin(user) && !isManager(user)) {
-        filter.userId = user?._id
-      }
+      filter.userId = user?._id
     }
     return filter
   }
@@ -135,7 +128,7 @@ export class BaseController {
   }
 
   // Updates a document by ID
-  update = (id?: string, data?: any, user?: User) => {
+  update = (id: string, data: any, user?: User) => {
     return new Promise((resolve, reject) => {
       validateUser(user)
       const filter = this.getFilter(id, user)
@@ -163,7 +156,7 @@ export class BaseController {
   }
 
   // Deletes a document by ID
-  delete = (id?: string, user?: User) => {
+  delete = (id: string, user?: User) => {
     return new Promise((resolve, reject) => {
       validateUser(user)
       const filter = this.getFilter(id, user)

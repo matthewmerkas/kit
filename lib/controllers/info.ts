@@ -6,7 +6,7 @@
 
 export class InfoController {
   info = {
-    name: 'Menu App',
+    name: 'KIT',
   }
 
   // Retrieves info object

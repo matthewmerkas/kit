@@ -13,7 +13,6 @@ export interface Error {
 
 export interface Filter {
   _id?: string
-  organisationId?: string
   userId?: string
 }
 
@@ -28,13 +27,11 @@ export interface Login {
 }
 
 export interface QueryParams {
-  organisationId?: string
   sort?: string
 }
 
 export interface User extends Iterable, SoftDeletes {
   _id?: string
-  organisationId?: string
   username?: string
-  roles?: string[]
+  displayName?: string
 }

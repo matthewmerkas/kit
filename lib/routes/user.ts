@@ -14,7 +14,7 @@ function userRouter() {
   router.get(`/${path}/me`, (req, res) => {
     const user: User | undefined = req?.user
     controller
-      .get(user?._id, projectionMap.get('user'), req.user)
+      .get(user?._id, projectionMap.get('user'), user)
       .then((data) => {
         res.json(data)
       })

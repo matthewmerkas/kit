@@ -102,7 +102,10 @@ export class UserController extends BaseController {
       if (typeof data.username !== 'string') {
         return reject(new HttpError('Username must be a string'))
       }
-      if (data.password !== 'string') {
+      if (typeof data.displayName !== 'string') {
+        return reject(new HttpError('Display name must be a string'))
+      }
+      if (typeof data.password !== 'string') {
         return reject(new HttpError('Password must be a string'))
       }
       if (!Object.prototype.hasOwnProperty.call(data, 'isDeleted')) {
@@ -131,7 +134,7 @@ export class UserController extends BaseController {
   }
 
   // Updates a user by ID
-  update = (id: string | undefined, data: User, user?: User) => {
+  update = (id: string, data: User, user?: User) => {
     return new Promise((resolve, reject) => {
       validateUser(user)
       const filter = this.getFilter(id, user)

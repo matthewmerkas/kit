@@ -2,20 +2,16 @@ import { model, Schema } from 'mongoose'
 
 export const UserSchema = new Schema(
   {
-    organisationId: Schema.Types.ObjectId, // For managers
     username: {
       type: String,
       required: true,
       unique: true,
       dropDups: true,
     },
+    displayName: { type: String, required: true },
     password: {
       salt: { type: String, required: true },
       hash: { type: String, required: true },
-    },
-    roles: {
-      type: Array,
-      required: true,
     },
     isDeleted: {
       type: Boolean,

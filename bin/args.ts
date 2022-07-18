@@ -4,19 +4,19 @@ import { User } from './types'
 import { UserController } from '../lib/controllers/user'
 
 export const parseArgs = (argv: ParsedArgs) => {
-  // Create admin user
-  if (argv.createAdmin) {
+  // Create user
+  if (argv.createUser) {
     const controller = new UserController()
     const password = controller.generateSalt(8)
     controller
-      .create({ username: 'admin', password: password, roles: ['admin'] })
+      .create({ username: 'kit', displayName: 'KIT', password: password })
       .then((user: User) => {
         if (user.username) {
           console.log(
-            `Admin account created with username '${user.username}' and password '${password}'`
+            `Account created with username '${user.username}' and password '${password}'`
           )
         } else {
-          console.error('Admin account creation failed!')
+          console.error('Account creation failed!')
         }
       })
       .catch((err: Error) => {
