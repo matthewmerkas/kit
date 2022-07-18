@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { Request as JWTRequest } from "express-jwt"
 
 import { sendError } from '../../bin/errors'
 import { BaseController } from '../controllers/base'
@@ -9,9 +10,9 @@ function baseRouter(controller: BaseController, path: string) {
   const router = Router()
 
   // Creates a document
-  router.post(`/${path}`, (req, res) => {
+  router.post(`/${path}`, (req: JWTRequest, res) => {
     controller
-      .create(req.body, req.user)
+      .create(req.body, req.auth)
       .then((data) => {
         res.json(data)
       })
@@ -21,21 +22,10 @@ function baseRouter(controller: BaseController, path: string) {
   })
 
   // Retrieves a list of documents
-  router.get(`/${path}`, (req, res) => {
+  router.get(`/${path}`, (req: JWTRequest, res) => {
+    console.log(req.auth)
     controller
-      .getList(req.query, projectionMap.get(path), req.user)
-      .then((data) => {
-        res.json(data)
-      })
-      .catch((err) => {
-        sendError(res, err)
-      })
-  })
-
-  // Retrieves the timestamp of the last updated document. Used for change detection
-  router.get(`/${path}/lastUpdated`, (req, res) => {
-    controller
-      .lastUpdated(req.user)
+      .getList(req.query, projectionMap.get(path), req.auth)
       .then((data) => {
         res.json(data)
       })
@@ -45,9 +35,9 @@ function baseRouter(controller: BaseController, path: string) {
   })
 
   // Retrieves a document by ID
-  router.get(`/${path}/:id`, (req, res) => {
+  router.get(`/${path}/:id`, (req: JWTRequest, res) => {
     controller
-      .get(req.params.id, projectionMap.get(path), req.user)
+      .get(req.params.id, projectionMap.get(path), req.auth)
       .then((data) => {
         res.json(data)
       })
@@ -57,9 +47,9 @@ function baseRouter(controller: BaseController, path: string) {
   })
 
   // Updates a document by ID
-  router.put(`/${path}/:id`, (req, res) => {
+  router.put(`/${path}/:id`, (req: JWTRequest, res) => {
     controller
-      .update(req.params.id, req.body, req.user)
+      .update(req.params.id, req.body, req.auth)
       .then((data) => {
         res.json(data)
       })
@@ -69,9 +59,9 @@ function baseRouter(controller: BaseController, path: string) {
   })
 
   // Deletes a document by ID
-  router.delete(`/${path}/:id`, (req, res) => {
+  router.delete(`/${path}/:id`, (req: JWTRequest, res) => {
     controller
-      .delete(req.params.id, req.user)
+      .delete(req.params.id, req.auth)
       .then((data) => {
         res.json(data)
       })

@@ -186,16 +186,4 @@ export class BaseController {
       }
     })
   }
-
-  // Retrieves the timestamp of the last updated document
-  lastUpdated = (user?: User) => {
-    const filter = this.getFilter(undefined, user)
-    return new Promise((resolve) => {
-      this.Model.findOne(filter, { updatedAt: 1 }).then(
-        (obj: { updatedAt: Date }) => {
-          return resolve(obj.updatedAt)
-        }
-      )
-    })
-  }
 }

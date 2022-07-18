@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { Request as JWTRequest } from "express-jwt";
 
 import { sendError } from '../../bin/errors'
 import { UserController } from '../controllers/user'
@@ -10,9 +11,9 @@ function userRouter() {
   const path = 'user'
   const router = Router()
 
-  // Retrieves a document by ID
-  router.get(`/${path}/me`, (req, res) => {
-    const user: User | undefined = req?.user
+  // Gets user document matching JWT user ID
+  router.get(`/${path}/me`, (req: JWTRequest, res) => {
+    const user: User | undefined = req.auth
     controller
       .get(user?._id, projectionMap.get('user'), user)
       .then((data) => {
