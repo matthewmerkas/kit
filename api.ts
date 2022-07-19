@@ -55,7 +55,7 @@ mongoose
 // Express
 const app = express()
 const prefix = process.env.PREFIX || '/api'
-const exemptRoutes = [`${prefix}/auth/login`, `${prefix}/info`, `/socket.io/`] // Don't guard these routes
+const exemptRoutes = [`${prefix}/user/login`, `${prefix}/info`, `/socket.io/`] // Don't guard these routes
 const port = Number(process.env.PORT) || 3000
 const hostname = process.env.HOSTNAME || '127.0.0.1'
 
