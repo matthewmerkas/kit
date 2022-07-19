@@ -10,39 +10,40 @@ import minimist from 'minimist'
 import mongoose from 'mongoose'
 import { Server } from 'socket.io'
 
-import { parseArgs } from './bin/args'
+import { checkEnv, parseArgs } from './bin/args'
 import { sendError } from './bin/errors'
 import { BaseController } from './lib/controllers/base'
-import { UserController } from './lib/controllers/user'
+import { AuthController } from './lib/controllers/auth'
 import MessageModel from './lib/models/message'
 import baseRouter from './lib/routes/base'
 import infoRouter from './lib/routes/info'
-import userRouter from './lib/routes/user'
+import authRouter from './lib/routes/auth'
 
 const argv = minimist(process.argv.slice(2))
-export const jwtSecret = process.env.JWT_SECRET
-  ? process.env.JWT_SECRET
-  : 'secret'
 
 // dotenv
 const env = dotenv.config()
 if (env.error) {
   throw env.error
 }
-if (!process.env.MONGO_URI) {
-  console.error('MONGO_URI environment variable is required!')
-  process.exit()
-}
-const optional = ['HOSTNAME', 'PORT', 'JWT_SECRET']
-for (const variable of optional) {
-  if (!process.env[variable]) {
-    console.warn(`${variable} is not set! Using default value`)
-  }
-}
+checkEnv(['MONGO_URI', 'JWT_SECRET', 'JWT_REFRESH_SECRET'], false)
+checkEnv(
+  [
+    'HOSTNAME',
+    'PORT',
+    'PREFIX',
+    'JWT_EXPIRY',
+    'JWT_SECRET_EXPIRY',
+    'MIN_PASSWORD_LENGTH',
+  ],
+  true
+)
+export const jwtSecret = process.env.JWT_SECRET!
+export const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET!
 
 // Mongoose
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI!)
   .then(() => {
     console.log('Connected to database!')
   })
@@ -53,10 +54,10 @@ mongoose
 
 // Express
 const app = express()
-const prefix = process.env.PREFIX ? process.env.PREFIX : '/api'
-const exemptRoutes = [`${prefix}/user/login`, `${prefix}/info`] // Don't guard these routes
-const port = process.env.PORT ? +process.env.PORT : 3000
-const hostname = process.env.HOSTNAME ? process.env.HOSTNAME : '127.0.0.1'
+const prefix = process.env.PREFIX || '/api'
+const exemptRoutes = [`${prefix}/auth/login`, `${prefix}/info`] // Don't guard these routes
+const port = Number(process.env.PORT) || 3000
+const hostname = process.env.HOSTNAME || '127.0.0.1'
 
 // Socket.IO
 const server = http.createServer(app)
@@ -90,9 +91,9 @@ app.use(
 )
 app.use(prefix, [
   baseRouter(new BaseController(MessageModel), 'message'),
-  baseRouter(new UserController(), 'user'),
+  baseRouter(new AuthController(), 'auth'),
   infoRouter(),
-  userRouter(),
+  authRouter(),
 ])
 io.on('connection', (socket) => {
   console.log('A socket connected!')

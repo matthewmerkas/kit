@@ -1,14 +1,14 @@
 /**
- * user.ts
+ * auth.ts
  *
- * This controller module implements CRUD methods for the user collection
+ * This controller module implements CRUD methods for authorisation and the user model
  */
 
 import * as crypto from 'crypto'
 import * as jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 
-import { jwtSecret } from '../../api'
+import { jwtSecret, jwtRefreshSecret } from '../../api'
 import { HttpError } from '../../bin/errors'
 import { Hash, Login, User } from '../../bin/types'
 import UserModel from '../models/user'
@@ -16,11 +16,14 @@ import { BaseController } from './base'
 import { validateUser } from '../../bin/user'
 
 const JWT_EXPIRY = process.env.JWT_EXPRIY ? process.env.JWT_EXPRIY : '1hr'
+const JWT_REFRESH_EXPIRY = process.env.JWT_REFRESH_EXPRIY
+  ? process.env.JWT_REFRESH_EXPRIY
+  : '30d'
 const MIN_PASSWORD_LENGTH = process.env.MIN_PASSWORD_LENGTH
   ? process.env.MIN_PASSWORD_LENGTH
   : 8
 
-export class UserController extends BaseController {
+export class AuthController extends BaseController {
   constructor() {
     super(UserModel)
   }
@@ -80,7 +83,10 @@ export class UserController extends BaseController {
             const token = jwt.sign(payload, jwtSecret, {
               expiresIn: JWT_EXPIRY,
             })
-            return resolve({ token })
+            const refreshToken = jwt.sign(payload, jwtRefreshSecret, {
+              expiresIn: JWT_REFRESH_EXPIRY,
+            })
+            return resolve({ token, refreshToken })
           } else {
             return reject(
               new HttpError('Username and password do not match', 401)
@@ -90,6 +96,22 @@ export class UserController extends BaseController {
         .catch((err: Error) => {
           return reject(err)
         })
+    })
+  }
+
+  refresh = (token: string) => {
+    return new Promise((resolve, reject) => {
+      // https://gist.github.com/ziluvatar/a3feb505c4c0ec37059054537b38fc48
+      const payload = jwt.verify(token, jwtSecret) as jwt.JwtPayload
+      delete payload.iat
+      delete payload.exp
+      delete payload.nbf
+      delete payload.jti // We are generating a new token
+      return resolve(
+        jwt.sign(payload, jwtSecret, {
+          expiresIn: JWT_EXPIRY,
+        })
+      )
     })
   }
 

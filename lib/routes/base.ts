@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { Request as JWTRequest } from "express-jwt"
+import { Request as JWTRequest } from 'express-jwt'
 
 import { sendError } from '../../bin/errors'
 import { BaseController } from '../controllers/base'

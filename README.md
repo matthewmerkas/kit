@@ -12,7 +12,9 @@ Environment Variables:
 
 - MONGO_URI (required)
 - JWT_SECRET (required)
+- JWT_REFRESH_SECRET (required)
 - JWT_EXPIRY (default: 1hr)
+- JWT_REFRESH_EXPIRY (default: 30d)
 - HOSTNAME (default: 127.0.0.1)
 - PORT (default: 3000)
 - PREFIX (default: /api)

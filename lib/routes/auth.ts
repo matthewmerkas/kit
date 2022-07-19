@@ -1,13 +1,13 @@
 import { Router } from 'express'
-import { Request as JWTRequest } from "express-jwt";
+import { Request as JWTRequest } from 'express-jwt'
 
 import { sendError } from '../../bin/errors'
-import { UserController } from '../controllers/user'
+import { AuthController } from '../controllers/auth'
 import { User } from '../../bin/types'
 import { projectionMap } from './base'
 
-function userRouter() {
-  const controller = new UserController()
+function authRouter() {
+  const controller = new AuthController()
   const path = 'user'
   const router = Router()
 
@@ -36,7 +36,19 @@ function userRouter() {
       })
   })
 
+  // Refreshes a JWT
+  router.post(`/${path}/refresh`, (req, res) => {
+    controller
+      .refresh(req.body)
+      .then((jwt) => {
+        res.send(jwt)
+      })
+      .catch((err) => {
+        sendError(res, err)
+      })
+  })
+
   return router
 }
 
-export default userRouter
+export default authRouter
