@@ -1,12 +1,12 @@
 import { ParsedArgs } from 'minimist'
 
 import { User } from './types'
-import { AuthController } from '../lib/controllers/auth'
+import { UserController } from '../lib/controllers/user'
 
 export const parseArgs = (argv: ParsedArgs) => {
   // Create user
   if (argv.createUser) {
-    const controller = new AuthController()
+    const controller = new UserController()
     const password = controller.generateSalt(8)
     controller
       .create({ username: 'kit', displayName: 'KIT', password: password })

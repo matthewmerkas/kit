@@ -1,5 +1,5 @@
 /**
- * auth.ts
+ * user.ts
  *
  * This controller module implements CRUD methods for authorisation and the user model
  */
@@ -23,7 +23,7 @@ const MIN_PASSWORD_LENGTH = process.env.MIN_PASSWORD_LENGTH
   ? process.env.MIN_PASSWORD_LENGTH
   : 8
 
-export class AuthController extends BaseController {
+export class UserController extends BaseController {
   constructor() {
     super(UserModel)
   }

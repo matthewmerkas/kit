@@ -13,11 +13,11 @@ import { Server } from 'socket.io'
 import { checkEnv, parseArgs } from './bin/args'
 import { sendError } from './bin/errors'
 import { BaseController } from './lib/controllers/base'
-import { AuthController } from './lib/controllers/auth'
+import { UserController } from './lib/controllers/user'
 import MessageModel from './lib/models/message'
 import baseRouter from './lib/routes/base'
 import infoRouter from './lib/routes/info'
-import authRouter from './lib/routes/auth'
+import userRouter from './lib/routes/user'
 
 const argv = minimist(process.argv.slice(2))
 
@@ -55,7 +55,7 @@ mongoose
 // Express
 const app = express()
 const prefix = process.env.PREFIX || '/api'
-const exemptRoutes = [`${prefix}/auth/login`, `${prefix}/info`] // Don't guard these routes
+const exemptRoutes = [`${prefix}/auth/login`, `${prefix}/info`, `/socket.io/`] // Don't guard these routes
 const port = Number(process.env.PORT) || 3000
 const hostname = process.env.HOSTNAME || '127.0.0.1'
 
@@ -91,9 +91,9 @@ app.use(
 )
 app.use(prefix, [
   baseRouter(new BaseController(MessageModel), 'message'),
-  baseRouter(new AuthController(), 'auth'),
+  baseRouter(new UserController(), 'user'),
   infoRouter(),
-  authRouter(),
+  userRouter(),
 ])
 io.on('connection', (socket) => {
   console.log('A socket connected!')
@@ -101,7 +101,6 @@ io.on('connection', (socket) => {
 app.use(csrf({ cookie: true }))
 app.all('*', function (req, res) {
   res.cookie('XSRF-TOKEN', req.csrfToken())
-  res.render('index')
 })
 app.use(errorHandler)
 

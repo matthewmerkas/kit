@@ -2,12 +2,12 @@ import { Router } from 'express'
 import { Request as JWTRequest } from 'express-jwt'
 
 import { sendError } from '../../bin/errors'
-import { AuthController } from '../controllers/auth'
+import { UserController } from '../controllers/user'
 import { User } from '../../bin/types'
 import { projectionMap } from './base'
 
-function authRouter() {
-  const controller = new AuthController()
+function userRouter() {
+  const controller = new UserController()
   const path = 'user'
   const router = Router()
 
@@ -51,4 +51,4 @@ function authRouter() {
   return router
 }
 
-export default authRouter
+export default userRouter
