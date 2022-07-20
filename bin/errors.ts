@@ -12,9 +12,15 @@ export const HttpError = class HttpError extends Error {
 }
 
 export const sendError = (res: Response, err: Error) => {
-  try {
-    return res.status(err.status ?? 422).json({ message: err.message })
-  } catch (err) {
-    console.error(err)
+  let message = err.message
+  switch(err.code) {
+    case 'credentials_required':
+      message = 'Please log in to access this resource'
+      break
+    case 'invalid_token':
+      message = 'Please log in again to access this resource'
+      break
   }
+  const json = Object.assign({message}, err)
+  return res.status(json.status ?? 422).json(json)
 }

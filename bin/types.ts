@@ -7,6 +7,7 @@ export interface SoftDeletes {
 }
 
 export interface Error {
+  code: string
   status: number
   message: string
 }

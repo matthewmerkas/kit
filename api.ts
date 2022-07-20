@@ -67,17 +67,6 @@ const io = new Server(server)
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // TODO: Better logging with ip, pino/winston+morgan (https://sematext.com/blog/node-js-logging/)
   console.error(err)
-  if (err.code === 'credentials_required') {
-    return sendError(res, {
-      status: 401,
-      message: 'Please log-in to access this resource',
-    })
-  } else if (err.code === 'invalid_token') {
-    return sendError(res, {
-      status: 401,
-      message: 'Please log-in again to access this resource',
-    })
-  }
   return sendError(res, err)
 }
 
