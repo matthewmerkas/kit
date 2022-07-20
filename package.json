@@ -4,7 +4,7 @@
   "description": "",
   "main": "api.ts",
   "scripts": {
-    "createUser": "ts-node ./api.ts --createUser",
+    "createAdmin": "ts-node ./api.ts --createAdmin",
     "dev": "ts-node-dev --respawn ./api.ts",
     "start": "ts-node ./api.ts",
     "test": "echo \"Error: no test specified\" && exit 1"

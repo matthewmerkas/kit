@@ -23,7 +23,6 @@ function baseRouter(controller: BaseController, path: string) {
 
   // Retrieves a list of documents
   router.get(`/${path}`, (req: JWTRequest, res) => {
-    console.log(req.auth)
     controller
       .getList(req.query, projectionMap.get(path), req.auth)
       .then((data) => {

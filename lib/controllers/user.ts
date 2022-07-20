@@ -13,7 +13,7 @@ import { HttpError } from '../../bin/errors'
 import { Hash, Login, User } from '../../bin/types'
 import UserModel from '../models/user'
 import { BaseController } from './base'
-import { validateUser } from '../../bin/user'
+import { isAdmin, validateUser } from "../../bin/user";
 
 const JWT_EXPIRY = process.env.JWT_EXPRIY ? process.env.JWT_EXPRIY : '1hr'
 const JWT_REFRESH_EXPIRY = process.env.JWT_REFRESH_EXPRIY
@@ -160,6 +160,9 @@ export class UserController extends BaseController {
     return new Promise((resolve, reject) => {
       validateUser(user)
       const filter = this.getFilter(id, user)
+      if (!isAdmin(user)) {
+        delete data.roles
+      }
       if (mongoose.isValidObjectId(id)) {
         if (typeof data !== 'object') {
           throw new HttpError('Data must be an object')
@@ -174,7 +177,7 @@ export class UserController extends BaseController {
           .exec()
           .then((user: any) => {
             if (user == null) {
-              return reject(new HttpError('Could not update user'))
+              return reject(new HttpError('Could not find User'))
             }
             user.password = undefined
             return resolve(user)

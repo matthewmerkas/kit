@@ -13,6 +13,7 @@ export const UserSchema = new Schema(
       salt: { type: String, required: true },
       hash: { type: String, required: true },
     },
+    roles: { type: Array },
     isDeleted: {
       type: Boolean,
       required: true,

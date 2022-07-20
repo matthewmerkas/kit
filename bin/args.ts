@@ -5,11 +5,11 @@ import { UserController } from '../lib/controllers/user'
 
 export const parseArgs = (argv: ParsedArgs) => {
   // Create user
-  if (argv.createUser) {
+  if (argv.createAdmin) {
     const controller = new UserController()
     const password = controller.generateSalt(8)
     controller
-      .create({ username: 'kit', displayName: 'KIT', password: password })
+      .create({ username: 'kit', displayName: 'KIT', password: password, roles: ['admin'] })
       .then((user: User) => {
         if (user.username) {
           console.log(

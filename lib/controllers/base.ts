@@ -8,7 +8,7 @@ import mongoose, { Model } from 'mongoose'
 
 import { HttpError } from '../../bin/errors'
 import { Filter, QueryParams, SoftDeletes, User } from '../../bin/types'
-import { validateUser } from '../../bin/user'
+import { isAdmin, validateUser } from "../../bin/user";
 
 export class BaseController {
   Model: Model<any>
@@ -22,8 +22,12 @@ export class BaseController {
   // Filter results based on user ID
   getFilter = (id?: string, user?: User) => {
     const filter: Filter = id ? { _id: id } : {}
-    if (this.Model.schema.obj.userId != null) {
-      filter.userId = user?._id
+    if (!isAdmin(user)) {
+      if (this.Model.modelName === 'User' && id != null && id !== user?._id) {
+        filter._id = undefined
+      } else if (this.Model.schema.obj.userId != null) {
+        filter.userId = user?._id
+      }
     }
     return filter
   }
@@ -87,7 +91,7 @@ export class BaseController {
           .then((obj: Object) => {
             if (obj == null) {
               return reject(
-                new HttpError(`Cannot find ${this.Model.modelName}`)
+                new HttpError(`Could not find ${this.Model.modelName}`)
               )
             }
             return resolve(obj)

@@ -22,6 +22,6 @@ Environment Variables:
 
 ## Development
 
-Create a user with `npm run createUser`
+Create an admin user with `npm run createAdmin`
 
 Run the development server with `npm run dev`

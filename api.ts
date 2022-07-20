@@ -1,7 +1,6 @@
 import * as bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
-import csrf from 'csurf'
 import * as dotenv from 'dotenv'
 import express, { ErrorRequestHandler } from 'express'
 import { expressjwt } from 'express-jwt'
@@ -55,7 +54,7 @@ mongoose
 // Express
 const app = express()
 const prefix = process.env.PREFIX || '/api'
-const exemptRoutes = [`${prefix}/user/login`, `${prefix}/info`, `/socket.io/`] // Don't guard these routes
+const exemptRoutes = [`${prefix}/info`, `${prefix}/user/login`, `${prefix}/user/signup`, `/socket.io/`] // Don't guard these routes
 const port = Number(process.env.PORT) || 3000
 const hostname = process.env.HOSTNAME || '127.0.0.1'
 
@@ -80,16 +79,12 @@ app.use(
 )
 app.use(prefix, [
   baseRouter(new BaseController(MessageModel), 'message'),
+  userRouter(),
   baseRouter(new UserController(), 'user'),
   infoRouter(),
-  userRouter(),
 ])
 io.on('connection', (socket) => {
   console.log('A socket connected!')
-})
-app.use(csrf({ cookie: true }))
-app.all('*', function (req, res) {
-  res.cookie('XSRF-TOKEN', req.csrfToken())
 })
 app.use(errorHandler)
 

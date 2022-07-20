@@ -35,4 +35,5 @@ export interface User extends Iterable, SoftDeletes {
   _id?: string
   username?: string
   displayName?: string
+  roles?: string[]
 }

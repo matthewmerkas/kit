@@ -5,6 +5,7 @@ import { sendError } from '../../bin/errors'
 import { UserController } from '../controllers/user'
 import { User } from '../../bin/types'
 import { projectionMap } from './base'
+import { isAdmin } from "../../bin/user";
 
 function userRouter() {
   const controller = new UserController()
@@ -42,6 +43,22 @@ function userRouter() {
       .refresh(req.body)
       .then((jwt) => {
         res.send(jwt)
+      })
+      .catch((err) => {
+        sendError(res, err)
+      })
+  })
+
+  // Creates a new user
+  router.post(`/${path}/signup`, (req: JWTRequest, res) => {
+    const user: User = req.auth!
+    if (!isAdmin(user)) {
+      delete req.body.roles
+    }
+    controller
+      .create(req.body)
+      .then((data) => {
+        res.json(data)
       })
       .catch((err) => {
         sendError(res, err)
