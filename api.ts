@@ -62,6 +62,7 @@ const prefix = process.env.PREFIX || '/api'
 const exemptRoutes = [
   `${prefix}/info`,
   `${prefix}/user/login`,
+  `${prefix}/user/refresh`,
   `${prefix}/user/signup`,
   `/socket.io/`,
 ] // Don't check JWT for these routes
