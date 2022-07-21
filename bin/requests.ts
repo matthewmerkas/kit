@@ -1,8 +1,8 @@
-import { sendError } from "./errors";
-import { BaseController } from "../lib/controllers/base";
-import { Request as JWTRequest } from "express-jwt";
-import { Response } from "express";
-import { projectionMap } from "../lib/routes/base";
+import { sendError } from './errors'
+import { BaseController } from '../lib/controllers/base'
+import { Request as JWTRequest } from 'express-jwt'
+import { Response } from 'express'
+import { projectionMap } from '../lib/routes/base'
 
 export class BaseRequests {
   controller: BaseController
@@ -67,5 +67,4 @@ export class BaseRequests {
         sendError(res, err)
       })
   }
-
 }

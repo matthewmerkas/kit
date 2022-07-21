@@ -12,12 +12,12 @@ import { Server } from 'socket.io'
 import { checkEnv, parseArgs } from './bin/args'
 import { sendError } from './bin/errors'
 import { BaseController } from './lib/controllers/base'
-import { UserController } from './lib/controllers/user'
 import MessageModel from './lib/models/message'
 import baseRouter from './lib/routes/base'
 import infoRouter from './lib/routes/info'
+import messageRouter from './lib/routes/message'
 import userRouter from './lib/routes/user'
-import UserModel from "./lib/models/user";
+import UserModel from './lib/models/user'
 
 const argv = minimist(process.argv.slice(2))
 const guard = require('express-jwt-permissions')({
@@ -91,9 +91,10 @@ app.use(
 app.use(`${prefix}/admin`, guard.check(['admin']))
 app.use(prefix, [
   baseRouter(new BaseController(UserModel), 'admin/user'),
+  infoRouter(),
+  messageRouter(),
   baseRouter(new BaseController(MessageModel), 'message'),
   userRouter(),
-  infoRouter(),
 ])
 io.on('connection', (socket) => {
   console.log('A socket connected!')

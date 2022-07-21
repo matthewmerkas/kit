@@ -1,12 +1,12 @@
 import { Router } from 'express'
 import { Request as JWTRequest } from 'express-jwt'
 
-import { HttpError, sendError } from "../../bin/errors";
+import { HttpError, sendError } from '../../bin/errors'
 import { UserController } from '../controllers/user'
 import { User } from '../../bin/types'
 import { projectionMap } from './base'
 import { isAdmin } from '../../bin/user'
-import { BaseRequests } from "../../bin/requests";
+import { BaseRequests } from '../../bin/requests'
 
 function userRouter() {
   const controller = new UserController()
@@ -47,10 +47,9 @@ function userRouter() {
       })
   })
 
-  // Retrieves a user by ID in JWT
+  // Retrieves the logged-in user
   router.get(`/${path}/me`, (req: JWTRequest, res) => {
     const user: User | undefined = req.auth
-    console.log(user)
     if (user?._id) {
       controller
         .get(user._id, projectionMap.get('user'), user)
@@ -65,7 +64,7 @@ function userRouter() {
     }
   })
 
-  // Updates a user by ID in JWT
+  // Updates the logged-in user
   router.put(`/${path}/me`, (req: JWTRequest, res) => {
     const user: User | undefined = req.auth
     if (user?._id) {

@@ -28,6 +28,22 @@ export interface Login {
   password: string
 }
 
+export interface Message {
+  userId?: string
+  user: User
+  recipientId?: string
+  senderId?: string
+  audioUrl?: string
+  progress?: number
+  text?: string
+  isDeleted?: boolean
+}
+
+export interface Token {
+  token?: string
+  refreshToken?: string
+}
+
 export interface QueryParams extends Iterable {
   sort?: string
 }

@@ -10,7 +10,7 @@ import mongoose from 'mongoose'
 
 import { jwtSecret, jwtRefreshSecret } from '../../api'
 import { HttpError } from '../../bin/errors'
-import { Hash, Login, User } from '../../bin/types'
+import { Hash, Login, Token, User } from '../../bin/types'
 import UserModel from '../models/user'
 import { BaseController } from './base'
 import { isAdmin, validateUser } from '../../bin/user'
@@ -99,19 +99,21 @@ export class UserController extends BaseController {
     })
   }
 
-  refresh = (token: string) => {
+  refresh = (data: Token) => {
     return new Promise((resolve, reject) => {
       // https://gist.github.com/ziluvatar/a3feb505c4c0ec37059054537b38fc48
-      const payload = jwt.verify(token, jwtSecret) as jwt.JwtPayload
+      const payload = jwt.verify(
+        data.refreshToken!,
+        jwtRefreshSecret
+      ) as jwt.JwtPayload
       delete payload.iat
       delete payload.exp
       delete payload.nbf
       delete payload.jti // We are generating a new token
-      return resolve(
-        jwt.sign(payload, jwtSecret, {
-          expiresIn: JWT_EXPIRY,
-        })
-      )
+      const token = jwt.sign(payload, jwtSecret, {
+        expiresIn: JWT_EXPIRY,
+      })
+      return resolve({ token })
     })
   }
 

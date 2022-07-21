@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { Request as JWTRequest } from 'express-jwt'
 
 import { BaseController } from '../controllers/base'
-import { BaseRequests } from "../../bin/requests";
+import { BaseRequests } from '../../bin/requests'
 
 export const projectionMap = new Map([['user', { password: 0 }]])
 
