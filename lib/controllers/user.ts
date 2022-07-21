@@ -13,7 +13,7 @@ import { HttpError } from '../../bin/errors'
 import { Hash, Login, User } from '../../bin/types'
 import UserModel from '../models/user'
 import { BaseController } from './base'
-import { isAdmin, validateUser } from "../../bin/user";
+import { isAdmin, validateUser } from '../../bin/user'
 
 const JWT_EXPIRY = process.env.JWT_EXPRIY ? process.env.JWT_EXPRIY : '1hr'
 const JWT_REFRESH_EXPIRY = process.env.JWT_REFRESH_EXPRIY

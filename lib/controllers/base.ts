@@ -8,7 +8,7 @@ import mongoose, { Model } from 'mongoose'
 
 import { HttpError } from '../../bin/errors'
 import { Filter, QueryParams, SoftDeletes, User } from '../../bin/types'
-import { isAdmin, validateUser } from "../../bin/user";
+import { isAdmin, validateUser } from '../../bin/user'
 
 export class BaseController {
   Model: Model<any>
@@ -22,14 +22,20 @@ export class BaseController {
   // Filter results based on user ID
   getFilter = (id?: string, user?: User) => {
     const filter: Filter = id ? { _id: id } : {}
-    if (!isAdmin(user)) {
-      if (this.Model.modelName === 'User' && id != null && id !== user?._id) {
-        filter._id = undefined
-      } else if (this.Model.schema.obj.userId != null) {
-        filter.userId = user?._id
-      }
+    if (!isAdmin(user) && this.Model.schema.obj.userId != null) {
+      filter.userId = user?._id
     }
     return filter
+  }
+
+  // Parses JSON in filter query parameter
+  parseParams = (params: QueryParams) => {
+    for (const [key, value] of Object.entries(params)) {
+      try {
+        params[key] = JSON.parse(value)
+      } catch (e) {}
+    }
+    return params
   }
 
   // Creates a document
@@ -113,9 +119,13 @@ export class BaseController {
   ) => {
     return new Promise((resolve, reject) => {
       validateUser(user)
-      const filter = Object.assign(this.getFilter(undefined, user), params, {
-        sort: undefined,
-      })
+      const filter = Object.assign(
+        this.getFilter(undefined, user),
+        this.parseParams(params),
+        {
+          sort: undefined,
+        }
+      )
       const query = this.Model.find(filter, projection).sort(params.sort)
       for (const key of this.populateKeys) {
         query.populate(key)

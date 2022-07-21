@@ -6,6 +6,7 @@ const MessageSchema = new Schema(
     recipientId: { type: Schema.Types.ObjectId, required: true },
     senderId: { type: Schema.Types.ObjectId, required: true },
     audioUrl: String,
+    progress: Number,
     text: String,
     isDeleted: Boolean,
   },

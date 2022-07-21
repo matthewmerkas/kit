@@ -13,7 +13,7 @@ export const HttpError = class HttpError extends Error {
 
 export const sendError = (res: Response, err: Error) => {
   let message = err.message
-  switch(err.code) {
+  switch (err.code) {
     case 'credentials_required':
       message = 'Please log in to access this resource'
       break
@@ -21,6 +21,6 @@ export const sendError = (res: Response, err: Error) => {
       message = 'Please log in again to access this resource'
       break
   }
-  const json = Object.assign({message}, err)
+  const json = Object.assign({ message }, err)
   return res.status(json.status ?? 422).json(json)
 }

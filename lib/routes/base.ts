@@ -1,72 +1,38 @@
 import { Router } from 'express'
 import { Request as JWTRequest } from 'express-jwt'
 
-import { sendError } from '../../bin/errors'
 import { BaseController } from '../controllers/base'
+import { BaseRequests } from "../../bin/requests";
 
 export const projectionMap = new Map([['user', { password: 0 }]])
 
 function baseRouter(controller: BaseController, path: string) {
   const router = Router()
+  const requests = new BaseRequests(controller, path)
 
   // Creates a document
   router.post(`/${path}`, (req: JWTRequest, res) => {
-    controller
-      .create(req.body, req.auth)
-      .then((data) => {
-        res.json(data)
-      })
-      .catch((err) => {
-        sendError(res, err)
-      })
+    requests.create(req, res)
   })
 
   // Retrieves a list of documents
   router.get(`/${path}`, (req: JWTRequest, res) => {
-    controller
-      .getList(req.query, projectionMap.get(path), req.auth)
-      .then((data) => {
-        res.json(data)
-      })
-      .catch((err) => {
-        sendError(res, err)
-      })
+    requests.getList(req, res)
   })
 
   // Retrieves a document by ID
   router.get(`/${path}/:id`, (req: JWTRequest, res) => {
-    controller
-      .get(req.params.id, projectionMap.get(path), req.auth)
-      .then((data) => {
-        res.json(data)
-      })
-      .catch((err) => {
-        sendError(res, err)
-      })
+    requests.getOne(req, res)
   })
 
   // Updates a document by ID
   router.put(`/${path}/:id`, (req: JWTRequest, res) => {
-    controller
-      .update(req.params.id, req.body, req.auth)
-      .then((data) => {
-        res.json(data)
-      })
-      .catch((err) => {
-        sendError(res, err)
-      })
+    requests.update(req, res)
   })
 
   // Deletes a document by ID
   router.delete(`/${path}/:id`, (req: JWTRequest, res) => {
-    controller
-      .delete(req.params.id, req.auth)
-      .then((data) => {
-        res.json(data)
-      })
-      .catch((err) => {
-        sendError(res, err)
-      })
+    requests.delete(req, res)
   })
 
   return router

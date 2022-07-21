@@ -14,6 +14,7 @@ export interface Error {
 
 export interface Filter {
   _id?: string
+  displayName?: string
   userId?: string
 }
 
@@ -27,7 +28,7 @@ export interface Login {
   password: string
 }
 
-export interface QueryParams {
+export interface QueryParams extends Iterable {
   sort?: string
 }
 

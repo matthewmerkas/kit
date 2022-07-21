@@ -1,28 +1,26 @@
 import { Router } from 'express'
 import { Request as JWTRequest } from 'express-jwt'
 
-import { sendError } from '../../bin/errors'
+import { HttpError, sendError } from "../../bin/errors";
 import { UserController } from '../controllers/user'
 import { User } from '../../bin/types'
 import { projectionMap } from './base'
-import { isAdmin } from "../../bin/user";
+import { isAdmin } from '../../bin/user'
+import { BaseRequests } from "../../bin/requests";
 
 function userRouter() {
   const controller = new UserController()
   const path = 'user'
   const router = Router()
+  const requests = new BaseRequests(controller, path)
 
-  // Gets user document matching JWT user ID
-  router.get(`/${path}/me`, (req: JWTRequest, res) => {
-    const user: User | undefined = req.auth
-    controller
-      .get(user?._id, projectionMap.get('user'), user)
-      .then((data) => {
-        res.json(data)
-      })
-      .catch((err) => {
-        sendError(res, err)
-      })
+  // Creates a user
+  router.post(`/${path}/signup`, (req: JWTRequest, res) => {
+    const user: User = req.auth!
+    if (!isAdmin(user)) {
+      delete req.body.roles
+    }
+    requests.create(req, res)
   })
 
   // Authenticates user with username and password. Returns JWT
@@ -49,20 +47,49 @@ function userRouter() {
       })
   })
 
-  // Creates a new user
-  router.post(`/${path}/signup`, (req: JWTRequest, res) => {
-    const user: User = req.auth!
-    if (!isAdmin(user)) {
-      delete req.body.roles
+  // Retrieves a user by ID in JWT
+  router.get(`/${path}/me`, (req: JWTRequest, res) => {
+    const user: User | undefined = req.auth
+    console.log(user)
+    if (user?._id) {
+      controller
+        .get(user._id, projectionMap.get('user'), user)
+        .then((data) => {
+          res.json(data)
+        })
+        .catch((err) => {
+          sendError(res, err)
+        })
+    } else {
+      throw new HttpError('Could not find User ID')
     }
-    controller
-      .create(req.body)
-      .then((data) => {
-        res.json(data)
-      })
-      .catch((err) => {
-        sendError(res, err)
-      })
+  })
+
+  // Updates a user by ID in JWT
+  router.put(`/${path}/me`, (req: JWTRequest, res) => {
+    const user: User | undefined = req.auth
+    if (user?._id) {
+      controller
+        .update(user._id, req.body, req.auth)
+        .then((data) => {
+          res.json(data)
+        })
+        .catch((err) => {
+          sendError(res, err)
+        })
+    } else {
+      throw new HttpError('Could not find User ID')
+    }
+  })
+
+  // Retrieves a list of users
+  router.get(`/${path}`, (req: JWTRequest, res) => {
+    requests.getList(req, res)
+  })
+
+  // Retrieves a user by ID
+  router.get(`/${path}/:id`, (req: JWTRequest, res) => {
+    requests.getOne(req, res)
   })
 
   return router
