@@ -6,6 +6,7 @@
 
 import MessageModel from '../models/message'
 import { BaseController } from './base'
+import { Types } from "mongoose";
 
 export class MessageController extends BaseController {
   constructor() {
@@ -14,9 +15,10 @@ export class MessageController extends BaseController {
 
   // Retrieves a list of the latest messages for the logged-in user
   getLatest = (userId: string) => {
+    // TODO: Exclude logged-in userId from peerId results
     return new Promise((resolve, reject) => {
       this.Model.aggregate([
-        { $sort: { createdAt: -1 } },
+        { $match: { userId: new Types.ObjectId(userId) } },
         {
           $group: {
             _id: '$peerId',
@@ -32,6 +34,7 @@ export class MessageController extends BaseController {
             as: 'user',
           },
         },
+        { $sort: { createdAt: -1 } },
       ])
         .unwind('user')
         .exec()
