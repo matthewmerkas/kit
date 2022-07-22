@@ -15,7 +15,6 @@ export class MessageController extends BaseController {
 
   // Retrieves a list of the latest messages for the logged-in user
   getLatest = (userId: string) => {
-    // TODO: Exclude logged-in userId from peerId results
     return new Promise((resolve, reject) => {
       this.Model.aggregate([
         { $match: { userId: new Types.ObjectId(userId) } },
