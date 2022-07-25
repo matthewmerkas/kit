@@ -59,14 +59,7 @@ export class BaseController {
         })
         .catch((err: any) => {
           if (err.code === 11000) {
-            const article = [
-              'Item',
-              'Order',
-              'OrderStatus',
-              'Organisation',
-            ].includes(this.Model.modelName)
-              ? 'An'
-              : 'A'
+            const article = [''].includes(this.Model.modelName) ? 'An' : 'A'
             return reject(
               new Error(
                 `${article} ${this.Model.modelName} already exists with name '${err.keyValue.name}'`

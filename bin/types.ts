@@ -31,12 +31,19 @@ export interface Login {
 export interface Message {
   userId?: string
   user: User
-  recipientId?: string
-  senderId?: string
+  peerId?: string
+  direction?: 'send' | 'receive'
   audioUrl?: string
+  audio?: RecordingData
   progress?: number
   text?: string
   isDeleted?: boolean
+}
+
+export interface RecordingData {
+  recordDataBase64: string
+  msDuration: number
+  mimeType: string
 }
 
 export interface Token {

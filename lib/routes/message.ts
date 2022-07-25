@@ -4,11 +4,17 @@ import { Request as JWTRequest } from 'express-jwt'
 import { User } from '../../bin/types'
 import { MessageController } from '../controllers/message'
 import { HttpError, sendError } from '../../bin/errors'
+import { BaseRequests } from '../../bin/requests'
 
 function messageRouter() {
   const controller = new MessageController()
   const path = 'message'
   const router = Router()
+  const requests = new BaseRequests(controller, path)
+
+  router.post(`/${path}`, (req: JWTRequest, res) => {
+    requests.create(req, res)
+  })
 
   // Retrieves a list of the latest messages for the logged-in user
   router.get(`/${path}/latest`, (req: JWTRequest, res) => {

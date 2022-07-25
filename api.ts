@@ -4,6 +4,7 @@ import cors from 'cors'
 import * as dotenv from 'dotenv'
 import express, { ErrorRequestHandler } from 'express'
 import { expressjwt } from 'express-jwt'
+import * as fs from 'fs'
 import * as http from 'http'
 import minimist from 'minimist'
 import mongoose from 'mongoose'
@@ -24,6 +25,7 @@ const guard = require('express-jwt-permissions')({
   requestProperty: 'auth',
   permissionsProperty: 'roles',
 })
+const serveStatic = require('serve-static')
 
 // dotenv
 const env = dotenv.config()
@@ -60,6 +62,7 @@ mongoose
 const app = express()
 const prefix = process.env.PREFIX || '/api'
 const exemptRoutes = [
+  `${prefix}/audio`,
   `${prefix}/info`,
   `${prefix}/user/login`,
   `${prefix}/user/refresh`,
@@ -74,13 +77,19 @@ const server = http.createServer(app)
 const io = new Server(server)
 //
 
+// serve-static
+fs.mkdir(`public/audio`, { recursive: true }, (err) => {
+  if (err) throw err
+})
+app.use(serveStatic('public', { immutable: true }))
+
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // TODO: Better logging with ip, pino/winston+morgan (https://sematext.com/blog/node-js-logging/)
   console.error(err)
   return sendError(res, err)
 }
 
-app.use(bodyParser.json())
+app.use(bodyParser.json({ limit: '64mb' }))
 app.use(cookieParser())
 app.use(cors())
 app.use(

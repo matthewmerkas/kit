@@ -6,11 +6,66 @@
 
 import MessageModel from '../models/message'
 import { BaseController } from './base'
-import { Types } from "mongoose";
+import { Types } from 'mongoose'
+import { validateUser } from '../../bin/user'
+import { HttpError } from '../../bin/errors'
+import { Message, User } from '../../bin/types'
+import * as fs from 'fs'
+import { DateTime } from 'luxon'
+import path from 'path'
 
 export class MessageController extends BaseController {
   constructor() {
     super(MessageModel)
+  }
+
+  create = (data: Message, user?: User) => {
+    return new Promise((resolve, reject) => {
+      validateUser(user)
+      if (data == null && typeof data !== 'object') {
+        return reject(new HttpError('Data must be an object'))
+      }
+      if (
+        !data.audio?.recordDataBase64 ||
+        !data.audio?.msDuration ||
+        !data.audio?.mimeType
+      ) {
+        return reject(new HttpError('Malformed audio data'))
+      }
+      if (!Object.prototype.hasOwnProperty.call(data, 'isDeleted')) {
+        data.isDeleted = false
+      }
+      data.direction = 'send'
+      // Store base64 audio data in file
+      const date = DateTime.now().toFormat('yyMMdd-HHmmss')
+      const rand = Math.random().toString(16).substr(2, 8)
+      const fileName = `message_${date}_${rand}.opus`
+      const filePath = path.normalize(`${require.main?.path}/public/audio/`)
+      fs.writeFileSync(
+        filePath + fileName,
+        Buffer.from(data.audio?.recordDataBase64, 'base64')
+      )
+      delete data.audio
+      data.audioUrl = `/audio/${fileName}`
+      data.direction = 'send'
+
+      const docSend = new this.Model(data)
+      const userId = data.userId
+      data.userId = data.peerId
+      data.peerId = userId
+      data.direction = 'receive'
+      const docReceive = new this.Model(data)
+
+      return this.Model.insertMany([docSend, docReceive])
+        .then((obj: Object) => {
+          if (obj == null) {
+            return reject(new HttpError('Could not create document'))
+          }
+        })
+        .catch((err: any) => {
+          return reject(err)
+        })
+    })
   }
 
   // Retrieves a list of the latest messages for the logged-in user
