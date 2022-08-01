@@ -35,7 +35,8 @@ export interface Message {
   direction?: 'send' | 'receive'
   audioUrl?: string
   audio?: RecordingData
-  progress?: number
+  currentTime?: number
+  duration?: number
   text?: string
   isDeleted?: boolean
 }

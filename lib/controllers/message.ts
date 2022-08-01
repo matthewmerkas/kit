@@ -35,7 +35,7 @@ export class MessageController extends BaseController {
       if (!Object.prototype.hasOwnProperty.call(data, 'isDeleted')) {
         data.isDeleted = false
       }
-      data.direction = 'send'
+      data.duration = data.audio.msDuration
       // Store base64 audio data in file
       const date = DateTime.now().toFormat('yyMMdd-HHmmss')
       const rand = Math.random().toString(16).substr(2, 8)
@@ -54,13 +54,15 @@ export class MessageController extends BaseController {
       data.userId = data.peerId
       data.peerId = userId
       data.direction = 'receive'
+      data.currentTime = 0
       const docReceive = new this.Model(data)
 
       return this.Model.insertMany([docSend, docReceive])
-        .then((obj: Object) => {
+        .then((obj: Object[]) => {
           if (obj == null) {
             return reject(new HttpError('Could not create document'))
           }
+          return resolve(obj[0])
         })
         .catch((err: any) => {
           return reject(err)
@@ -73,6 +75,7 @@ export class MessageController extends BaseController {
     return new Promise((resolve, reject) => {
       this.Model.aggregate([
         { $match: { userId: new Types.ObjectId(userId) } },
+        { $sort: { createdAt: -1 } },
         {
           $group: {
             _id: '$peerId',
