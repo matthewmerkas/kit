@@ -2,14 +2,13 @@ import { model, Schema } from 'mongoose'
 
 const MessageSchema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, required: true },
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
-    peerId: { type: Schema.Types.ObjectId, required: true },
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    peer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     direction: {
       type: String,
       enum: ['send', 'receive'],
     },
-    audioUrl: String,
+    audioFileName: String,
     currentTime: Number,
     duration: Number,
     text: String,

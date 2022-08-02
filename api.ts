@@ -25,7 +25,6 @@ const guard = require('express-jwt-permissions')({
   requestProperty: 'auth',
   permissionsProperty: 'roles',
 })
-const serveStatic = require('serve-static')
 
 // dotenv
 const env = dotenv.config()
@@ -62,32 +61,24 @@ mongoose
 const app = express()
 const prefix = process.env.PREFIX || '/api'
 const exemptRoutes = [
-  `${prefix}/audio`,
   `${prefix}/info`,
   `${prefix}/user/login`,
   `${prefix}/user/refresh`,
   `${prefix}/user/signup`,
-  `/socket.io/`,
 ] // Don't check JWT for these routes
 const port = Number(process.env.PORT) || 3000
 const hostname = process.env.HOSTNAME || '127.0.0.1'
-
-// Socket.IO
-const server = http.createServer(app)
-const io = new Server(server)
-//
-
-// serve-static
-fs.mkdir(`public/audio`, { recursive: true }, (err) => {
-  if (err) throw err
-})
-app.use(serveStatic('public', { immutable: true }))
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // TODO: Better logging with ip, pino/winston+morgan (https://sematext.com/blog/node-js-logging/)
   console.error(err)
   return sendError(res, err)
 }
+
+fs.mkdir(`public/audio`, { recursive: true }, (err) => {
+  if (err) throw err
+})
+app.use('/public', express.static('public'))
 
 app.use(bodyParser.json({ limit: '64mb' }))
 app.use(cookieParser())
@@ -102,17 +93,26 @@ app.use(prefix, [
   baseRouter(new BaseController(UserModel), 'admin/user'),
   infoRouter(),
   messageRouter(),
-  baseRouter(new BaseController(MessageModel), 'message'),
+  baseRouter(new BaseController(MessageModel, ['peer']), 'message'),
   userRouter(),
 ])
-io.on('connection', (socket) => {
-  console.log('A socket connected!')
+
+// Socket.IO
+const server = http.createServer(app)
+export const io = new Server(server, {
+  cors: {
+    origin: true,
+    methods: ['GET', 'POST'],
+  },
 })
+module.exports.io = io
+//
+
 app.use(errorHandler)
 
 parseArgs(argv)
 
-app
+server
   .listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`)
   })

@@ -13,6 +13,7 @@ import { Message, User } from '../../bin/types'
 import * as fs from 'fs'
 import { DateTime } from 'luxon'
 import path from 'path'
+import { io } from '../../api'
 
 export class MessageController extends BaseController {
   constructor() {
@@ -46,13 +47,13 @@ export class MessageController extends BaseController {
         Buffer.from(data.audio?.recordDataBase64, 'base64')
       )
       delete data.audio
-      data.audioUrl = `/audio/${fileName}`
+      data.audioFileName = fileName
       data.direction = 'send'
 
       const docSend = new this.Model(data)
-      const userId = data.userId
-      data.userId = data.peerId
-      data.peerId = userId
+      const peerId = data.user
+      data.user = data.peer
+      data.peer = peerId
       data.direction = 'receive'
       data.currentTime = 0
       const docReceive = new this.Model(data)
@@ -62,6 +63,11 @@ export class MessageController extends BaseController {
           if (obj == null) {
             return reject(new HttpError('Could not create document'))
           }
+          const receive = obj[1] as Message
+          io.emit('create message', {
+            _id: receive._id,
+            user: receive.user,
+          })
           return resolve(obj[0])
         })
         .catch((err: any) => {
@@ -74,11 +80,11 @@ export class MessageController extends BaseController {
   getLatest = (userId: string) => {
     return new Promise((resolve, reject) => {
       this.Model.aggregate([
-        { $match: { userId: new Types.ObjectId(userId) } },
+        { $match: { user: new Types.ObjectId(userId) } },
         { $sort: { createdAt: -1 } },
         {
           $group: {
-            _id: '$peerId',
+            _id: { peer: '$peer' },
             doc: { $first: '$$ROOT' },
           },
         },
@@ -86,16 +92,24 @@ export class MessageController extends BaseController {
         {
           $lookup: {
             from: 'users',
-            localField: 'peerId',
+            localField: 'peer',
             foreignField: '_id',
-            as: 'user',
+            as: 'peer',
+          },
+        },
+        { $unwind: '$peer' },
+        {
+          $project: {
+            createdAt: true,
+            currentTime: true,
+            peer: { _id: true, displayName: true },
           },
         },
         { $sort: { createdAt: -1 } },
       ])
-        .unwind('user')
         .exec()
         .then((latest) => {
+          console.log(latest)
           return resolve(latest)
         })
         .catch((err: Error) => {

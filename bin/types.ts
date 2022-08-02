@@ -15,7 +15,7 @@ export interface Error {
 export interface Filter {
   _id?: string
   displayName?: string
-  userId?: string
+  user?: string
 }
 
 export interface Hash {
@@ -29,11 +29,11 @@ export interface Login {
 }
 
 export interface Message {
-  userId?: string
-  user: User
-  peerId?: string
+  _id?: string
+  user?: string
+  peer?: string
   direction?: 'send' | 'receive'
-  audioUrl?: string
+  audioFileName?: string
   audio?: RecordingData
   currentTime?: number
   duration?: number

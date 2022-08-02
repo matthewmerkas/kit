@@ -22,8 +22,8 @@ export class BaseController {
   // Filter results based on user ID
   getFilter = (id?: string, user?: User) => {
     const filter: Filter = id ? { _id: id } : {}
-    if (!isAdmin(user) && this.Model.schema.obj.userId != null) {
-      filter.userId = user?._id
+    if (!isAdmin(user) && this.Model.schema.obj.user != null) {
+      filter.user = user?._id
     }
     return filter
   }
@@ -120,9 +120,9 @@ export class BaseController {
         }
       )
       const query = this.Model.find(filter, projection).sort(params.sort)
-      for (const key of this.populateKeys) {
-        query.populate(key)
-      }
+      // for (const key of this.populateKeys) {
+      //   query.populate(key)
+      // }
       query
         .exec()
         .then((objs: Object[]) => {
