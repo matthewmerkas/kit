@@ -49,30 +49,42 @@ export class MessageController extends BaseController {
       delete data.audio
       data.audioFileName = fileName
       data.direction = 'send'
-
       const docSend = new this.Model(data)
-      const peerId = data.user
-      data.user = data.peer
-      data.peer = peerId
-      data.direction = 'receive'
-      data.currentTime = 0
-      const docReceive = new this.Model(data)
 
-      return this.Model.insertMany([docSend, docReceive])
-        .then((obj: Object[]) => {
-          if (obj == null) {
-            return reject(new HttpError('Could not create document'))
-          }
-          const receive = obj[1] as Message
-          io.emit('create message', {
-            _id: receive._id,
-            user: receive.user,
+      if (data.user !== data.peer) {
+        const peerId = data.user
+        data.user = data.peer
+        data.peer = peerId
+        data.direction = 'receive'
+        data.currentTime = 0
+        const docReceive = new this.Model(data)
+        return this.Model.insertMany([docSend, docReceive])
+          .then((obj: Object[]) => {
+            if (obj == null) {
+              return reject(new HttpError('Could not create document'))
+            }
+            io.emit('create message', {
+              _id: docReceive._id,
+              user: docReceive.user,
+            })
+            return resolve(docSend)
           })
-          return resolve(obj[0])
-        })
-        .catch((err: any) => {
-          return reject(err)
-        })
+          .catch((err: any) => {
+            return reject(err)
+          })
+      } else {
+        return docSend
+          .save()
+          .then((obj: Object) => {
+            if (obj == null) {
+              return reject(new HttpError('Could not create document'))
+            }
+            return resolve(docSend)
+          })
+          .catch((err: any) => {
+            return reject(err)
+          })
+      }
     })
   }
 
@@ -109,7 +121,6 @@ export class MessageController extends BaseController {
       ])
         .exec()
         .then((latest) => {
-          console.log(latest)
           return resolve(latest)
         })
         .catch((err: Error) => {
