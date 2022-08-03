@@ -69,7 +69,7 @@ function userRouter() {
     const user: User | undefined = req.auth
     if (user?._id) {
       controller
-        .update(user._id, req.body, req.auth)
+        .set(user._id, req.body, req.auth)
         .then((data) => {
           res.json(data)
         })

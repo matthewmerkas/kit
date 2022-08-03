@@ -6,7 +6,7 @@
 
 import MessageModel from '../models/message'
 import { BaseController } from './base'
-import { Types } from 'mongoose'
+import { Document, Types } from 'mongoose'
 import { validateUser } from '../../bin/user'
 import { HttpError } from '../../bin/errors'
 import { Message, User } from '../../bin/types'
@@ -59,8 +59,8 @@ export class MessageController extends BaseController {
         data.currentTime = 0
         const docReceive = new this.Model(data)
         return this.Model.insertMany([docSend, docReceive])
-          .then((obj: Object[]) => {
-            if (obj == null) {
+          .then((doc: Document[]) => {
+            if (doc == null) {
               return reject(new HttpError('Could not create document'))
             }
             io.emit('create message', {
@@ -75,8 +75,8 @@ export class MessageController extends BaseController {
       } else {
         return docSend
           .save()
-          .then((obj: Object) => {
-            if (obj == null) {
+          .then((doc: Document) => {
+            if (doc == null) {
               return reject(new HttpError('Could not create document'))
             }
             return resolve(docSend)

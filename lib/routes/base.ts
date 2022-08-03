@@ -27,7 +27,12 @@ function baseRouter(controller: BaseController, path: string) {
 
   // Updates a document by ID
   router.put(`/${path}/:id`, (req: JWTRequest, res) => {
-    requests.update(req, res)
+    requests.set(req, res)
+  })
+
+  // Updates a document by ID without removing missing fields
+  router.put(`/${path}/:id/patch`, (req: JWTRequest, res) => {
+    requests.patch(req, res)
   })
 
   // Deletes a document by ID

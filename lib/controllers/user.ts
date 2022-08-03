@@ -158,7 +158,7 @@ export class UserController extends BaseController {
   }
 
   // Updates a user by ID
-  update = (id: string, data: User, user?: User) => {
+  set = (id: string, data: User, user?: User) => {
     return new Promise((resolve, reject) => {
       validateUser(user)
       const filter = this.getFilter(id, user)

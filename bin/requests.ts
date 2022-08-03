@@ -46,9 +46,20 @@ export class BaseRequests {
       })
   }
 
-  update = (req: JWTRequest, res: Response<any, Record<string, any>>) => {
+  set = (req: JWTRequest, res: Response<any, Record<string, any>>) => {
     this.controller
-      .update(req.params.id, req.body, req.auth)
+      .set(req.params.id, req.body, req.auth)
+      .then((data) => {
+        res.json(data)
+      })
+      .catch((err) => {
+        sendError(res, err)
+      })
+  }
+
+  patch = (req: JWTRequest, res: Response<any, Record<string, any>>) => {
+    this.controller
+      .patch(req.params.id, req.body, req.auth)
       .then((data) => {
         res.json(data)
       })
