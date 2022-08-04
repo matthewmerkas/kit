@@ -74,7 +74,7 @@ export class BaseController {
   // Retrieves a document by ID
   get = (
     id?: string,
-    projection?: Document | String | Array<String>,
+    projection?: Object | String | Array<String>,
     user?: User
   ) => {
     return new Promise((resolve, reject) => {
@@ -107,7 +107,7 @@ export class BaseController {
   // Retrieves a list of documents
   getList = (
     params: QueryParams,
-    projection?: Document | String | Array<String>,
+    projection?: Object | String | Array<String>,
     user?: User
   ) => {
     return new Promise((resolve, reject) => {
