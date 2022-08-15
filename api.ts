@@ -19,7 +19,7 @@ import infoRouter from './lib/routes/info'
 import messageRouter from './lib/routes/message'
 import userRouter from './lib/routes/user'
 import UserModel from './lib/models/user'
-import RfidModel from "./lib/models/rfid";
+import RfidModel from './lib/models/rfid'
 
 const argv = minimist(process.argv.slice(2))
 const guard = require('express-jwt-permissions')({

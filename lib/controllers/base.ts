@@ -9,6 +9,7 @@ import mongoose, { Document, Model } from 'mongoose'
 import { HttpError } from '../../bin/errors'
 import { QueryParams, SoftDeletes, User } from '../../bin/types'
 import { isAdmin, validateUser } from '../../bin/user'
+import { io } from '../../api'
 
 export class BaseController {
   Model: Model<any>
@@ -63,7 +64,10 @@ export class BaseController {
       if (data == null && typeof data !== 'object') {
         return reject(new HttpError('Data must be an object'))
       }
-      if (!Object.prototype.hasOwnProperty.call(data, 'isDeleted')) {
+      if (
+        this.Model.schema.obj.isDeleted != null &&
+        !Object.prototype.hasOwnProperty.call(data, 'isDeleted')
+      ) {
         data.isDeleted = false
       }
       const doc = new this.Model(data)
@@ -72,6 +76,9 @@ export class BaseController {
         .then((doc: Document) => {
           if (doc == null) {
             return reject(new HttpError('Could not create document'))
+          }
+          if (this.Model.modelName === 'Rfid') {
+            io.emit('create rfid', { _id: doc._id })
           }
           return resolve(doc)
         })
