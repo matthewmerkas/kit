@@ -20,15 +20,14 @@ export class BaseController {
   }
 
   validateId = (id?: string) => {
-    if (id != null) {
+    if (id) {
       if (this.Model.modelName === 'Rfid') {
         return true
       } else {
         return mongoose.isValidObjectId(id)
       }
-    } else {
-      return false
     }
+    return false
   }
 
   // Filter results based on user ID
@@ -107,7 +106,7 @@ export class BaseController {
         query
           .exec()
           .then((doc: Document) => {
-            if (doc == null) {
+            if (doc == null && this.Model.modelName !== 'Rfid') {
               return reject(
                 new HttpError(`Could not find ${this.Model.modelName}`)
               )
