@@ -6,9 +6,9 @@
 
 import * as crypto from 'crypto'
 import * as jwt from 'jsonwebtoken'
-import mongoose from 'mongoose'
+import mongoose, { Document } from "mongoose";
 
-import { jwtSecret, jwtRefreshSecret } from '../../api'
+import { jwtSecret, jwtRefreshSecret } from "../../api";
 import { HttpError } from '../../bin/errors'
 import { Hash, Login, Token, User } from '../../bin/types'
 import UserModel from '../models/user'
@@ -186,6 +186,33 @@ export class UserController extends BaseController {
           })
           .catch((err: Error) => {
             return reject(err)
+          })
+      } else {
+        return reject(new HttpError('Invalid ID'))
+      }
+    })
+  }
+
+  // Updates a user by ID without removing missing fields
+  patch = (id: string, data: any, user?: User) => {
+    return new Promise((resolve, reject) => {
+      if (this.validateId(id)) {
+        const filter = this.getFilter(id, user)
+        if (!isAdmin(user)) {
+          delete data.roles
+        }
+        this.Model.findOne(filter)
+          .exec()
+          .then((doc: Document) => {
+            if (doc == null) {
+              return reject(
+                new HttpError(`Could not update ${this.Model.modelName}`)
+              )
+            }
+            if (data.password) {
+              data.password = this.createHash(data.password, this.generateSalt())
+            }
+            return resolve(this.set(id, { ...doc.toObject(), ...data }, user))
           })
       } else {
         return reject(new HttpError('Invalid ID'))
