@@ -19,6 +19,18 @@ export class BaseController {
     this.populateKeys = populateKeys
   }
 
+  validateId = (id?: string) => {
+    if (id != null) {
+      if (this.Model.modelName === 'Rfid') {
+        return true
+      } else {
+        return mongoose.isValidObjectId(id)
+      }
+    } else {
+      return false
+    }
+  }
+
   // Filter results based on user ID
   getFilter = (id?: string, user?: User) => {
     const filter: any = {}
@@ -87,7 +99,7 @@ export class BaseController {
     return new Promise((resolve, reject) => {
       validateUser(user)
       const filter = this.getFilter(id, user)
-      if (id != null && mongoose.isValidObjectId(id)) {
+      if (this.validateId(id)) {
         const query = this.Model.findOne(filter, projection)
         for (const key of this.populateKeys) {
           query.populate(key)
@@ -149,7 +161,7 @@ export class BaseController {
       if (data == null && typeof data !== 'object') {
         return reject(new HttpError('Data must be an object'))
       }
-      if (id != null && mongoose.isValidObjectId(id)) {
+      if (this.validateId(id)) {
         const query = this.Model.findOneAndUpdate(filter, data, { new: true })
         for (const key of this.populateKeys) {
           query.populate(key)
@@ -176,7 +188,7 @@ export class BaseController {
   // Updates a document by ID without removing missing fields
   patch = (id: string, data: any, user?: User) => {
     return new Promise((resolve, reject) => {
-      if (id != null && mongoose.isValidObjectId(id)) {
+      if (this.validateId(id)) {
         this.Model.findById(id)
           .exec()
           .then((doc: Document) => {
@@ -198,7 +210,7 @@ export class BaseController {
     return new Promise((resolve, reject) => {
       validateUser(user)
       const filter = this.getFilter(id, user)
-      if (id != null && mongoose.isValidObjectId(id)) {
+      if (this.validateId(id)) {
         this.Model.findOne(filter)
           .exec()
           .then((doc: SoftDeletes) => {
