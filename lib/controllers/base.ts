@@ -33,6 +33,7 @@ export class BaseController {
 
   // Filter results based on user ID
   getFilter = (id?: string, user?: User) => {
+    const exempt = ['Rfid']
     const filter: any = {}
     if (id) {
       if (this.Model.modelName === 'Rfid') {
@@ -41,7 +42,11 @@ export class BaseController {
         filter._id = id
       }
     }
-    if (!isAdmin(user) && this.Model.schema.obj.user != null) {
+    if (
+      !isAdmin(user) &&
+      this.Model.schema.obj.user != null &&
+      !exempt.includes(this.Model.modelName)
+    ) {
       filter.user = user?._id
     }
     return filter
