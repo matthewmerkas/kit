@@ -196,7 +196,8 @@ export class BaseController {
   patch = (id: string, data: any, user?: User) => {
     return new Promise((resolve, reject) => {
       if (this.validateId(id)) {
-        this.Model.findById(id)
+        const filter = this.getFilter(id, user)
+        this.Model.findOne(filter)
           .exec()
           .then((doc: Document) => {
             if (doc == null) {
