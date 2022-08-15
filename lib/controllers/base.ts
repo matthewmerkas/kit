@@ -7,7 +7,7 @@
 import mongoose, { Document, Model } from 'mongoose'
 
 import { HttpError } from '../../bin/errors'
-import { Filter, QueryParams, SoftDeletes, User } from '../../bin/types'
+import { QueryParams, SoftDeletes, User } from '../../bin/types'
 import { isAdmin, validateUser } from '../../bin/user'
 
 export class BaseController {
@@ -21,7 +21,14 @@ export class BaseController {
 
   // Filter results based on user ID
   getFilter = (id?: string, user?: User) => {
-    const filter: Filter = id ? { _id: id } : {}
+    const filter: any = {}
+    if (id) {
+      if (this.Model.modelName === 'Rfid') {
+        filter.tagId = id
+      } else {
+        filter._id = id
+      }
+    }
     if (!isAdmin(user) && this.Model.schema.obj.user != null) {
       filter.user = user?._id
     }
@@ -59,7 +66,7 @@ export class BaseController {
         })
         .catch((err: any) => {
           if (err.code === 11000) {
-            const article = [''].includes(this.Model.modelName) ? 'An' : 'A'
+            const article = ['Rfid'].includes(this.Model.modelName) ? 'An' : 'A'
             return reject(
               new Error(
                 `${article} ${this.Model.modelName} already exists with name '${err.keyValue.name}'`

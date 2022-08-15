@@ -47,6 +47,11 @@ export interface RecordingData {
   mimeType: string
 }
 
+export interface Rfid {
+  tagId: string
+  user: string
+}
+
 export interface Token {
   token?: string
   refreshToken?: string

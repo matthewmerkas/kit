@@ -19,6 +19,7 @@ import infoRouter from './lib/routes/info'
 import messageRouter from './lib/routes/message'
 import userRouter from './lib/routes/user'
 import UserModel from './lib/models/user'
+import RfidModel from "./lib/models/rfid";
 
 const argv = minimist(process.argv.slice(2))
 const guard = require('express-jwt-permissions')({
@@ -94,6 +95,7 @@ app.use(prefix, [
   infoRouter(),
   messageRouter(),
   baseRouter(new BaseController(MessageModel, ['peer']), 'message'),
+  baseRouter(new BaseController(RfidModel, ['user']), 'rfid'),
   userRouter(),
 ])
 
