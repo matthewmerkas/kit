@@ -171,7 +171,7 @@ export class UserController extends BaseController {
         }
         const user: NonNullable<User> = {
           ...data,
-          password: data.password
+          password: data.password && typeof data.password === 'string'
             ? this.createHash(data.password, this.generateSalt())
             : undefined,
         }
