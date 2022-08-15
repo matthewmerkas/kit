@@ -114,7 +114,7 @@ export class BaseController {
       if (this.validateId(id)) {
         const query = this.Model.findOne(filter, projection)
         for (const key of this.populateKeys) {
-          query.populate(key)
+          query.populate(key, '-password')
         }
         query
           .exec()
@@ -152,7 +152,7 @@ export class BaseController {
       )
       const query = this.Model.find(filter, projection).sort(params.sort)
       // for (const key of this.populateKeys) {
-      //   query.populate(key)
+      //   query.populate(key, '-password')
       // }
       query
         .exec()
@@ -176,7 +176,7 @@ export class BaseController {
       if (this.validateId(id)) {
         const query = this.Model.findOneAndUpdate(filter, data, { new: true })
         for (const key of this.populateKeys) {
-          query.populate(key)
+          query.populate(key, '-password')
         }
         query
           .exec()
@@ -209,6 +209,10 @@ export class BaseController {
               return reject(
                 new HttpError(`Could not update ${this.Model.modelName}`)
               )
+            }
+            if (this.Model.modelName === 'Rfid') {
+              const tagId = doc.toObject().tagId
+              io.emit('patch rfid', { tagId })
             }
             return resolve(this.set(id, { ...doc.toObject(), ...data }, user))
           })
