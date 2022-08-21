@@ -151,7 +151,7 @@ export class BaseController {
         }
       )
       let query = this.Model.find(filter, projection).sort(params.sort)
-      if (params.limit) {
+      if (params.limit && !isNaN(params.limit)) {
         query = query.limit(params.limit)
       }
       // for (const key of this.populateKeys) {
