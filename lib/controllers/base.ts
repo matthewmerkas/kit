@@ -150,7 +150,10 @@ export class BaseController {
           sort: undefined,
         }
       )
-      const query = this.Model.find(filter, projection).sort(params.sort)
+      let query = this.Model.find(filter, projection).sort(params.sort)
+      if (params.limit) {
+        query = query.limit(params.limit)
+      }
       // for (const key of this.populateKeys) {
       //   query.populate(key, '-password')
       // }

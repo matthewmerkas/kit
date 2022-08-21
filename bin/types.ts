@@ -58,6 +58,7 @@ export interface Token {
 }
 
 export interface QueryParams extends Iterable {
+  limit?: number
   sort?: string
 }
 
