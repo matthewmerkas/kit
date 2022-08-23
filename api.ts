@@ -79,6 +79,9 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 fs.mkdir(`public/audio`, { recursive: true }, (err) => {
   if (err) throw err
 })
+fs.mkdir(`public/avatars`, { recursive: true }, (err) => {
+  if (err) throw err
+})
 app.use('/public', express.static('public'))
 
 app.use(bodyParser.json({ limit: '64mb' }))
