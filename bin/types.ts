@@ -6,6 +6,11 @@ export interface SoftDeletes {
   isDeleted?: boolean
 }
 
+export interface Avatar {
+  base64: string
+  extension: string
+}
+
 export interface Error {
   code: string
   status: number
@@ -65,6 +70,8 @@ export interface QueryParams extends Iterable {
 export interface User extends Iterable, SoftDeletes {
   _id?: string
   username?: string
+  avatar?: Avatar
+  avatarFileName?: string
   displayName?: string
   roles?: string[]
 }

@@ -8,6 +8,7 @@ export const UserSchema = new Schema(
       unique: true,
       dropDups: true,
     },
+    avatarFileName: String,
     displayName: { type: String, required: true },
     password: {
       salt: { type: String, required: true },

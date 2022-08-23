@@ -10,10 +10,13 @@ import mongoose from "mongoose";
 
 import { jwtSecret, jwtRefreshSecret } from "../../api";
 import { HttpError } from '../../bin/errors'
-import { Hash, Login, Token, User } from '../../bin/types'
+import { Hash, Login, Token, User } from "../../bin/types";
 import UserModel from '../models/user'
 import { BaseController } from './base'
 import { isAdmin, validateUser } from '../../bin/user'
+import { DateTime } from "luxon";
+import path from "path";
+import fs from "fs";
 
 const JWT_EXPIRY = process.env.JWT_EXPRIY ? process.env.JWT_EXPRIY : '1hr'
 const JWT_REFRESH_EXPIRY = process.env.JWT_REFRESH_EXPRIY
@@ -24,6 +27,8 @@ const MIN_PASSWORD_LENGTH = process.env.MIN_PASSWORD_LENGTH
   : 8
 
 export class UserController extends BaseController {
+  private path = `${require.main?.path}/public/avatars/`
+
   constructor() {
     super(UserModel)
   }
@@ -63,6 +68,23 @@ export class UserController extends BaseController {
     }
     const toCompare = this.createHash(password, hashObject.salt)
     return toCompare.hash === hashObject.hash
+  }
+
+  // Store base64 image data in file
+  private writeToFile = (data: User) => {
+    if (data.avatar) {
+      const date = DateTime.now().toFormat('yyMMdd-HHmmss')
+      const rand = Math.random().toString(16).substr(2, 8)
+      const fileName = `avatar_${date}_${rand}.${data.avatar.extension}`
+      const filePath = path.normalize(this.path)
+      fs.writeFileSync(
+        filePath + fileName,
+        Buffer.from(data.avatar.base64, 'base64')
+      )
+      delete data.avatar
+      data.avatarFileName = fileName
+      return fileName
+    }
   }
 
   // Authenticates user with username and password
@@ -135,6 +157,7 @@ export class UserController extends BaseController {
       if (!Object.prototype.hasOwnProperty.call(data, 'isDeleted')) {
         data.isDeleted = false
       }
+      const fileName = this.writeToFile(data)
       const password = this.createHash(data.password, this.generateSalt())
       const user = new this.Model({
         ...data,
@@ -152,6 +175,9 @@ export class UserController extends BaseController {
               new Error(`Username '${err.keyValue.username}' is unavailable`)
             )
           }
+          fs.unlink(this.path + fileName, (err) => {
+            console.log(err)
+          })
           return reject(err)
         })
     })
@@ -169,6 +195,8 @@ export class UserController extends BaseController {
         if (typeof data !== 'object') {
           throw new HttpError('Data must be an object')
         }
+        const oldFileName = data.avatarFileName
+        const fileName = this.writeToFile(data)
         const user: NonNullable<User> = {
           ...data,
           password: data.password && typeof data.password === 'string'
@@ -181,10 +209,18 @@ export class UserController extends BaseController {
             if (user == null) {
               return reject(new HttpError('Could not find User'))
             }
+            if (oldFileName && fileName !== oldFileName) {
+              fs.unlink(this.path + oldFileName, (err) => {
+                console.log(err)
+              })
+            }
             user.password = undefined
             return resolve(user)
           })
           .catch((err: Error) => {
+            fs.unlink(this.path + fileName, (err) => {
+              console.log(err)
+            })
             return reject(err)
           })
       } else {
