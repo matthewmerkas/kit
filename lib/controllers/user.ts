@@ -6,17 +6,17 @@
 
 import * as crypto from 'crypto'
 import * as jwt from 'jsonwebtoken'
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
-import { jwtSecret, jwtRefreshSecret } from "../../api";
+import { jwtSecret, jwtRefreshSecret, io } from '../../api'
 import { HttpError } from '../../bin/errors'
-import { Hash, Login, Token, User } from "../../bin/types";
+import { Hash, Login, Token, User } from '../../bin/types'
 import UserModel from '../models/user'
 import { BaseController } from './base'
 import { isAdmin, validateUser } from '../../bin/user'
-import { DateTime } from "luxon";
-import path from "path";
-import fs from "fs";
+import { DateTime } from 'luxon'
+import path from 'path'
+import fs from 'fs'
 
 const JWT_EXPIRY = process.env.JWT_EXPRIY ? process.env.JWT_EXPRIY : '1hr'
 const JWT_REFRESH_EXPIRY = process.env.JWT_REFRESH_EXPRIY
@@ -199,9 +199,10 @@ export class UserController extends BaseController {
         const fileName = this.writeToFile(data)
         const user: NonNullable<User> = {
           ...data,
-          password: data.password && typeof data.password === 'string'
-            ? this.createHash(data.password, this.generateSalt())
-            : undefined,
+          password:
+            data.password && typeof data.password === 'string'
+              ? this.createHash(data.password, this.generateSalt())
+              : undefined,
         }
         this.Model.findOneAndUpdate(filter, user, { new: true })
           .exec()
@@ -215,6 +216,9 @@ export class UserController extends BaseController {
               })
             }
             user.password = undefined
+            io.emit('update user', {
+              _id: user.toObject()._id,
+            })
             return resolve(user)
           })
           .catch((err: Error) => {

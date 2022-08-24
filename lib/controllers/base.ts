@@ -189,6 +189,9 @@ export class BaseController {
                 new HttpError(`Could not update ${this.Model.modelName}`)
               )
             }
+            io.emit(`update ${this.Model.modelName.toLowerCase()}`, {
+              _id: doc.toObject()._id,
+            })
             return resolve(doc)
           })
           .catch((err: Error) => {
@@ -215,7 +218,11 @@ export class BaseController {
             }
             if (this.Model.modelName === 'Rfid') {
               const tagId = doc.toObject().tagId
-              io.emit('patch rfid', { tagId })
+              io.emit('update rfid', { tagId })
+            } else {
+              io.emit(`update ${this.Model.modelName.toLowerCase()}`, {
+                _id: doc.toObject()._id,
+              })
             }
             return resolve(this.set(id, { ...doc.toObject(), ...data }, user))
           })
