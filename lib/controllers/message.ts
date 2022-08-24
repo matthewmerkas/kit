@@ -114,7 +114,7 @@ export class MessageController extends BaseController {
           $project: {
             createdAt: true,
             currentTime: true,
-            peer: { _id: true, displayName: true },
+            peer: { _id: true, avatarFileName: true, displayName: true },
           },
         },
         { $sort: { createdAt: -1 } },
