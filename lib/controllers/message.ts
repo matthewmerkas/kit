@@ -81,6 +81,9 @@ export class MessageController extends BaseController {
                 }
                 admin.messaging().sendToDevice(user.fcmToken, message).then(() => {
                   return resolve(docSend)
+                }).catch((err) => {
+                  console.log(err)
+                  return resolve(docSend)
                 })
               })
           })
