@@ -25,3 +25,9 @@ Environment Variables:
 Create an admin user with `npm run createAdmin`
 
 Run the development server with `npm run dev`
+
+## Push Notifications
+
+To send push notifications, you need to provide credentials for a Firebase service account. Follow the instructions
+[here](https://firebase.google.com/docs/admin/setup#initialize-sdk) and set the GOOGLE_APPLICATION_CREDENTIALS
+environment variable.

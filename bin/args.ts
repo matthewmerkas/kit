@@ -57,10 +57,18 @@ export const checkEnv = (array: string[], optional: boolean) => {
       warning += `${missing[0]} is not set! `
     }
     if (optional) {
-      warning += `Using default values${many ? 's' : ''}`
+      warning += `Using default value${many ? 's' : ''}`
       console.warn(warning)
     } else {
       throw new Error(warning)
     }
+  }
+}
+
+export const checkCredentials = () => {
+  if (!process.env['GOOGLE_APPLICATION_CREDENTIALS']) {
+    console.warn(
+      'GOOGLE_APPLICATION_CREDENTIALS is not set. Push notifications will not work!'
+    )
   }
 }

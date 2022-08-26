@@ -79,9 +79,6 @@ export class BaseController {
       return doc
         .save()
         .then((doc: Document) => {
-          if (doc == null) {
-            return reject(new HttpError('Could not create document'))
-          }
           if (this.Model.modelName === 'Rfid') {
             const tagId = doc.toObject().tagId
             io.emit('create rfid', { tagId })

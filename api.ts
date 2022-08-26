@@ -10,7 +10,7 @@ import minimist from 'minimist'
 import mongoose from 'mongoose'
 import { Server } from 'socket.io'
 
-import { checkEnv, parseArgs } from './bin/args'
+import { checkCredentials, checkEnv, parseArgs } from './bin/args'
 import { sendError } from './bin/errors'
 import { BaseController } from './lib/controllers/base'
 import MessageModel from './lib/models/message'
@@ -20,6 +20,8 @@ import messageRouter from './lib/routes/message'
 import userRouter from './lib/routes/user'
 import UserModel from './lib/models/user'
 import RfidModel from './lib/models/rfid'
+import admin, { credential } from 'firebase-admin'
+import applicationDefault = credential.applicationDefault
 
 const argv = minimist(process.argv.slice(2))
 const guard = require('express-jwt-permissions')({
@@ -33,6 +35,7 @@ if (env.error) {
   throw env.error
 }
 checkEnv(['MONGO_URI', 'JWT_SECRET', 'JWT_REFRESH_SECRET'], false)
+checkCredentials()
 checkEnv(
   [
     'HOSTNAME',
@@ -101,6 +104,12 @@ app.use(prefix, [
   baseRouter(new BaseController(RfidModel, ['user']), 'rfid'),
   userRouter(),
 ])
+
+// Firebase
+admin.initializeApp({
+  credential: applicationDefault(),
+})
+//
 
 // Socket.IO
 const server = http.createServer(app)

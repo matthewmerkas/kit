@@ -10,6 +10,7 @@ export const UserSchema = new Schema(
     },
     avatarFileName: String,
     displayName: { type: String, required: true },
+    fcmToken: String,
     password: {
       salt: { type: String, required: true },
       hash: { type: String, required: true },

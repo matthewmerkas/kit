@@ -6,7 +6,7 @@
 
 import MessageModel from '../models/message'
 import { BaseController } from './base'
-import { Document, Types } from 'mongoose'
+import { Types } from "mongoose";
 import { validateUser } from '../../bin/user'
 import { HttpError } from '../../bin/errors'
 import { Message, User } from '../../bin/types'
@@ -14,6 +14,8 @@ import * as fs from 'fs'
 import { DateTime } from 'luxon'
 import path from 'path'
 import { io } from '../../api'
+import { getMessaging } from 'firebase-admin/lib/messaging'
+import UserModel from "../models/user";
 
 export class MessageController extends BaseController {
   constructor() {
@@ -59,29 +61,45 @@ export class MessageController extends BaseController {
         data.currentTime = 0
         const docReceive = new this.Model(data)
         return this.Model.insertMany([docSend, docReceive])
-          .then((doc: Document[]) => {
-            if (doc == null) {
-              return reject(new HttpError('Could not create document'))
-            }
+          .then(() => {
             io.emit('create message', {
               _id: docReceive._id,
               user: docReceive.user,
             })
-            return resolve(docSend)
+            return UserModel.findById(docReceive.user)
+              .exec()
+              .then((doc: any) => {
+                const user: User = doc.toObject()
+                const message = {
+                  data: {
+                    'peerId': user._id!,
+                  },
+                  notification: {
+                    title: user?.displayName,
+                    body: 'New message',
+                  },
+                }
+                getMessaging().sendToDevice(user.fcmToken, message).then(() => {
+                  return resolve(docSend)
+                })
+              })
           })
           .catch((err: any) => {
+            fs.unlink(filePath + fileName, (err) => {
+              console.log(err)
+            })
             return reject(err)
           })
       } else {
         return docSend
           .save()
-          .then((doc: Document) => {
-            if (doc == null) {
-              return reject(new HttpError('Could not create document'))
-            }
+          .then(() => {
             return resolve(docSend)
           })
           .catch((err: any) => {
+            fs.unlink(filePath + fileName, (err) => {
+              console.log(err)
+            })
             return reject(err)
           })
       }
