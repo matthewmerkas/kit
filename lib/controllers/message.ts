@@ -14,8 +14,8 @@ import * as fs from 'fs'
 import { DateTime } from 'luxon'
 import path from 'path'
 import { io } from '../../api'
-import { getMessaging } from 'firebase-admin/lib/messaging'
 import UserModel from "../models/user";
+import admin from "firebase-admin";
 
 export class MessageController extends BaseController {
   constructor() {
@@ -79,7 +79,7 @@ export class MessageController extends BaseController {
                     body: 'New message',
                   },
                 }
-                getMessaging().sendToDevice(user.fcmToken, message).then(() => {
+                admin.messaging().sendToDevice(user.fcmToken, message).then(() => {
                   return resolve(docSend)
                 })
               })
