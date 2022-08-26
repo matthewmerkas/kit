@@ -106,9 +106,10 @@ app.use(prefix, [
 ])
 
 // Firebase
-admin.initializeApp({
+export const firebaseApp = admin.initializeApp({
   credential: applicationDefault(),
 })
+module.exports.firebaseApp = firebaseApp
 //
 
 // Socket.IO
