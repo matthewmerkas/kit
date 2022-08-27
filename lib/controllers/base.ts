@@ -109,8 +109,11 @@ export class BaseController {
       validateUser(user)
       const filter = this.getFilter(id, user)
       if (this.validateId(id)) {
-        this.Model.findOne(filter, projection)
-          .populate(this.populateKeys, ['-fcmToken', '-password'])
+        const query = this.Model.findOne(filter, projection)
+        if (this.populateKeys.length > 0) {
+          query.populate(this.populateKeys, ['-fcmToken', '-password'])
+        }
+        query
           .exec()
           .then((doc: Document) => {
             if (doc == null && this.Model.modelName !== 'Rfid') {
@@ -169,8 +172,8 @@ export class BaseController {
       }
       if (this.validateId(id)) {
         const query = this.Model.findOneAndUpdate(filter, data, { new: true })
-        for (const key of this.populateKeys) {
-          query.populate(key, '-password')
+        if (this.populateKeys.length > 0) {
+          query.populate(this.populateKeys, '-password')
         }
         query
           .exec()

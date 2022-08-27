@@ -6,15 +6,15 @@
 
 import MessageModel from '../models/message'
 import { BaseController } from './base'
-import { Types } from "mongoose";
+import { Types } from 'mongoose'
 import { validateUser } from '../../bin/user'
 import { HttpError } from '../../bin/errors'
 import { Message, User } from '../../bin/types'
 import * as fs from 'fs'
 import { DateTime } from 'luxon'
 import path from 'path'
-import { firebaseApp, io } from "../../api";
-import UserModel from "../models/user";
+import { firebaseApp, io } from '../../api'
+import UserModel from '../models/user'
 
 export class MessageController extends BaseController {
   constructor() {
@@ -78,12 +78,16 @@ export class MessageController extends BaseController {
                     body: 'New message',
                   },
                 }
-                return firebaseApp.messaging().sendToDevice(peer.fcmToken, message).then(() => {
-                  return resolve(docSend)
-                }).catch((err) => {
-                  console.log(err)
-                  return resolve(docSend)
-                })
+                return firebaseApp
+                  .messaging()
+                  .sendToDevice(peer.fcmToken, message)
+                  .then(() => {
+                    return resolve(docSend)
+                  })
+                  .catch((err) => {
+                    console.log(err)
+                    return resolve(docSend)
+                  })
               })
           })
           .catch((err: any) => {
