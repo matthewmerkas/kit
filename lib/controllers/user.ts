@@ -217,11 +217,6 @@ export class UserController extends BaseController {
               })
             }
             user.password = undefined
-            if (!data.fcmToken) {
-              io.emit('update user', {
-                _id: user.toObject()._id,
-              })
-            }
             return resolve(user)
           })
           .catch((err: Error) => {

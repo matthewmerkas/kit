@@ -166,7 +166,7 @@ export class BaseController {
   }
 
   // Updates a document by ID
-  set = (id: string, data: any, user?: User) => {
+  set = (id: string, data: any, user?: User, emitEvent = true) => {
     return new Promise((resolve, reject) => {
       validateUser(user)
       const filter = this.getFilter(id, user)
@@ -186,9 +186,14 @@ export class BaseController {
                 new HttpError(`Could not update ${this.Model.modelName}`)
               )
             }
-            io.emit(`update ${this.Model.modelName.toLowerCase()}`, {
-              _id: doc.toObject()._id,
-            })
+            if (this.Model.modelName === 'Rfid') {
+              const tagId = doc.toObject().tagId
+              io.emit('update rfid', { tagId })
+            } else if (emitEvent) {
+              io.emit(`update ${this.Model.modelName.toLowerCase()}`, {
+                _id: doc.toObject()._id,
+              })
+            }
             return resolve(doc)
           })
           .catch((err: Error) => {
@@ -213,15 +218,15 @@ export class BaseController {
                 new HttpError(`Could not update ${this.Model.modelName}`)
               )
             }
-            if (this.Model.modelName === 'Rfid') {
-              const tagId = doc.toObject().tagId
-              io.emit('update rfid', { tagId })
-            } else {
-              io.emit(`update ${this.Model.modelName.toLowerCase()}`, {
-                _id: doc.toObject()._id,
-              })
-            }
-            return resolve(this.set(id, { ...doc.toObject(), ...data }, user))
+            // Don't emit events if we're just updating the messaging token
+            const emitEvent = !(
+              this.Model.modelName === 'User' &&
+              'fcmToken' in data &&
+              Object.keys(data).length === 1
+            )
+            return resolve(
+              this.set(id, { ...doc.toObject(), ...data }, user, emitEvent)
+            )
           })
       } else {
         return reject(new HttpError('Invalid ID'))
