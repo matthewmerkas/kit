@@ -211,7 +211,7 @@ export class UserController extends BaseController {
             if (user == null) {
               return reject(new HttpError('Could not find User'))
             }
-            if (oldFileName && fileName !== oldFileName) {
+            if (fileName && oldFileName && fileName !== oldFileName) {
               fs.unlink(this.path + oldFileName, (err) => {
                 console.log(err)
               })
