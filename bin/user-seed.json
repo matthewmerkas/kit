@@ -1,0 +1,110 @@
+[
+  {
+    "username": "matthew.merkas",
+    "displayName": "Matthew Merkas",
+    "avatarFileName": "seed/matthew.jpg",
+    "password": {
+      "salt": "87390a3cd3de5d41",
+      "hash": "a5d53cd893cedf1419abc4e2b6b89ef11d2832d30b5b1be756bc63f15dc9ba5c99f529cfe39e15644ee7970f512fca53e42970d5ba7e14decfafd8fce7663110"
+    }
+  },
+  {
+    "username": "alice",
+    "avatarFileName": "seed/alice.jpg",
+    "displayName": "Alice",
+    "password": {
+      "salt": "87390a3cd3de5d41",
+      "hash": "a5d53cd893cedf1419abc4e2b6b89ef11d2832d30b5b1be756bc63f15dc9ba5c99f529cfe39e15644ee7970f512fca53e42970d5ba7e14decfafd8fce7663110"
+    }
+  },
+  {
+    "username": "amelia",
+    "avatarFileName": "seed/amelia.jpg",
+    "displayName": "Amelia",
+    "password": {
+      "salt": "87390a3cd3de5d41",
+      "hash": "a5d53cd893cedf1419abc4e2b6b89ef11d2832d30b5b1be756bc63f15dc9ba5c99f529cfe39e15644ee7970f512fca53e42970d5ba7e14decfafd8fce7663110"
+    }
+  },
+  {
+    "username": "bob",
+    "avatarFileName": "seed/bob.jpg",
+    "displayName": "Bob",
+    "password": {
+      "salt": "87390a3cd3de5d41",
+      "hash": "a5d53cd893cedf1419abc4e2b6b89ef11d2832d30b5b1be756bc63f15dc9ba5c99f529cfe39e15644ee7970f512fca53e42970d5ba7e14decfafd8fce7663110"
+    }
+  },
+  {
+    "username": "carol",
+    "avatarFileName": "seed/carol.jpg",
+    "displayName": "Carol",
+    "password": {
+      "salt": "87390a3cd3de5d41",
+      "hash": "a5d53cd893cedf1419abc4e2b6b89ef11d2832d30b5b1be756bc63f15dc9ba5c99f529cfe39e15644ee7970f512fca53e42970d5ba7e14decfafd8fce7663110"
+    }
+  },
+  {
+    "username": "david",
+    "avatarFileName": "seed/david.jpg",
+    "displayName": "David",
+    "password": {
+      "salt": "87390a3cd3de5d41",
+      "hash": "a5d53cd893cedf1419abc4e2b6b89ef11d2832d30b5b1be756bc63f15dc9ba5c99f529cfe39e15644ee7970f512fca53e42970d5ba7e14decfafd8fce7663110"
+    }
+  },
+  {
+    "username": "john",
+    "avatarFileName": "seed/john.jpg",
+    "displayName": "John",
+    "password": {
+      "salt": "87390a3cd3de5d41",
+      "hash": "a5d53cd893cedf1419abc4e2b6b89ef11d2832d30b5b1be756bc63f15dc9ba5c99f529cfe39e15644ee7970f512fca53e42970d5ba7e14decfafd8fce7663110"
+    }
+  },
+  {
+    "username": "john1935",
+    "avatarFileName": "seed/john-87.jpg",
+    "displayName": "John",
+    "password": {
+      "salt": "87390a3cd3de5d41",
+      "hash": "a5d53cd893cedf1419abc4e2b6b89ef11d2832d30b5b1be756bc63f15dc9ba5c99f529cfe39e15644ee7970f512fca53e42970d5ba7e14decfafd8fce7663110"
+    }
+  },
+  {
+    "username": "kate",
+    "avatarFileName": "seed/kate.jpg",
+    "displayName": "Kate",
+    "password": {
+      "salt": "87390a3cd3de5d41",
+      "hash": "a5d53cd893cedf1419abc4e2b6b89ef11d2832d30b5b1be756bc63f15dc9ba5c99f529cfe39e15644ee7970f512fca53e42970d5ba7e14decfafd8fce7663110"
+    }
+  },
+  {
+    "username": "marge",
+    "avatarFileName": "seed/marge.jpg",
+    "displayName": "Marge",
+    "password": {
+      "salt": "87390a3cd3de5d41",
+      "hash": "a5d53cd893cedf1419abc4e2b6b89ef11d2832d30b5b1be756bc63f15dc9ba5c99f529cfe39e15644ee7970f512fca53e42970d5ba7e14decfafd8fce7663110"
+    }
+  },
+  {
+    "username": "pete",
+    "avatarFileName": "seed/pete.jpg",
+    "displayName": "Pete",
+    "password": {
+      "salt": "87390a3cd3de5d41",
+      "hash": "a5d53cd893cedf1419abc4e2b6b89ef11d2832d30b5b1be756bc63f15dc9ba5c99f529cfe39e15644ee7970f512fca53e42970d5ba7e14decfafd8fce7663110"
+    }
+  },
+  {
+    "username": "sarah",
+    "avatarFileName": "seed/sarah.jpg",
+    "displayName": "Sarah",
+    "password": {
+      "salt": "87390a3cd3de5d41",
+      "hash": "a5d53cd893cedf1419abc4e2b6b89ef11d2832d30b5b1be756bc63f15dc9ba5c99f529cfe39e15644ee7970f512fca53e42970d5ba7e14decfafd8fce7663110"
+    }
+  }
+]

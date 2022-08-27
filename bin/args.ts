@@ -8,6 +8,8 @@ import UserModel from '../lib/models/user'
 import fs from 'fs'
 import path from 'path'
 
+import userSeed from './user-seed.json'
+
 const deleteFiles = async (filePath: string) => {
   try {
     fs.readdirSync(filePath).forEach((f) => fs.rmSync(path.join(filePath, f)))
@@ -83,6 +85,22 @@ export const parseArgs = async (argv: ParsedArgs) => {
     await deleteFiles(filePath + 'avatars/')
     console.log('Exiting...')
     process.exit(0)
+  }
+  // Seed database
+  if (argv.seed) {
+    console.log('\nSeeding database...')
+    UserModel.collection
+      .insertMany(userSeed)
+      .then((res) => {
+        console.log(res)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+      .finally(() => {
+        console.log('Exiting...')
+        process.exit(0)
+      })
   }
 }
 

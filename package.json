@@ -7,6 +7,7 @@
     "createAdmin": "ts-node ./api.ts --createAdmin",
     "dev": "ts-node-dev --respawn ./api.ts",
     "reset": "ts-node ./api.ts --reset",
+    "seed": "ts-node ./api.ts --seed",
     "start": "ts-node ./api.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
