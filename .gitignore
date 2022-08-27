@@ -216,7 +216,8 @@ modules.xml
 # End of https://www.toptal.com/developers/gitignore/api/node,webstorm+all
 
 # Audio/image files
-public
+public/audio
+public/avatars/*
 
 # macOS
 .DS_Store
