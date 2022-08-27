@@ -68,17 +68,17 @@ export class MessageController extends BaseController {
             return UserModel.findById(docReceive.user)
               .exec()
               .then((doc: any) => {
-                const user: User = doc.toObject()
+                const peer: User = doc.toObject()
                 const message = {
                   data: {
-                    peerId: user._id?.toString() || '',
+                    peerId: peer._id?.toString() || '',
                   },
                   notification: {
                     title: user?.displayName,
                     body: 'New message',
                   },
                 }
-                firebaseApp.messaging().sendToDevice(user.fcmToken, message).then(() => {
+                firebaseApp.messaging().sendToDevice(user?.fcmToken, message).then(() => {
                   return resolve(docSend)
                 }).catch((err) => {
                   console.log(err)
