@@ -10,7 +10,7 @@ import path from 'path'
 
 const deleteFiles = async (filePath: string) => {
   try {
-    fs.readdirSync(filePath).forEach(f => fs.rmSync(path.join(filePath, f)))
+    fs.readdirSync(filePath).forEach((f) => fs.rmSync(path.join(filePath, f)))
   } catch (err: any) {
     if (err.code !== 'ERR_FS_EISDIR') {
       console.log(err)
@@ -41,6 +41,10 @@ export const parseArgs = async (argv: ParsedArgs) => {
       })
       .catch((err: Error) => {
         console.error(err.message)
+      })
+      .finally(() => {
+        console.log('Exiting...')
+        process.exit(0)
       })
   }
   // Wipe database and delete user-generated public files
@@ -75,9 +79,9 @@ export const parseArgs = async (argv: ParsedArgs) => {
     const filePath = `${require.main?.path}/public/`
     await deleteFiles(filePath + 'audio/')
     await deleteFiles(filePath + 'avatars/')
+    console.log('Exiting...')
+    process.exit(0)
   }
-  console.log('Exiting...')
-  process.exit(0)
 }
 
 export const checkEnv = (array: string[], optional: boolean) => {
