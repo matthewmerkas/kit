@@ -110,8 +110,8 @@ export class BaseController {
       const filter = this.getFilter(id, user)
       if (this.validateId(id)) {
         const query = this.Model.findOne(filter, projection)
-        if (this.populateKeys.length > 0) {
-          query.populate(this.populateKeys, ['-fcmToken', '-password'])
+        for (const key of this.populateKeys) {
+          query.populate(key, ['-fcmToken', '-password'])
         }
         query
           .exec()
@@ -151,6 +151,9 @@ export class BaseController {
       if (params.limit && !isNaN(params.limit)) {
         query = query.limit(params.limit)
       }
+      // for (const key of this.populateKeys) {
+      //   query.populate(key, ['-fcmToken', '-password'])
+      // }
       query
         .exec()
         .then((docs: Document[]) => {
@@ -172,8 +175,8 @@ export class BaseController {
       }
       if (this.validateId(id)) {
         const query = this.Model.findOneAndUpdate(filter, data, { new: true })
-        if (this.populateKeys.length > 0) {
-          query.populate(this.populateKeys, '-password')
+        for (const key of this.populateKeys) {
+          query.populate(key, ['-fcmToken', '-password'])
         }
         query
           .exec()
