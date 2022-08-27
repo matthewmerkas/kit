@@ -78,7 +78,7 @@ export class MessageController extends BaseController {
                     body: 'New message',
                   },
                 }
-                firebaseApp.messaging().sendToDevice(user?.fcmToken, message).then(() => {
+                firebaseApp.messaging().sendToDevice(peer.fcmToken, message).then(() => {
                   return resolve(docSend)
                 }).catch((err) => {
                   console.log(err)
