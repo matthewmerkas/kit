@@ -11,9 +11,9 @@ import path from 'path'
 const deleteFiles = async (filePath: string) => {
   try {
     fs.readdirSync(filePath).forEach(f => fs.rmSync(path.join(filePath, f)))
-  } catch (e) {
-    if (e.code !== 'ERR_FS_EISDIR') {
-      console.log(e)
+  } catch (err: any) {
+    if (err.code !== 'ERR_FS_EISDIR') {
+      console.log(err)
     }
   }
 }
