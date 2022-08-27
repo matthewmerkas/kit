@@ -31,3 +31,7 @@ Run the development server with `npm run dev`
 To send push notifications, you need to provide credentials for a Firebase service account. Follow the instructions
 [here](https://firebase.google.com/docs/admin/setup#initialize-sdk) and set the GOOGLE_APPLICATION_CREDENTIALS
 environment variable.
+
+You must grant the 'Firebase Cloud Messaging API Admin' role to your service account.
+
+You also need to enable [Cloud Messaging](https://console.cloud.google.com/marketplace/product/google/googlecloudmessaging.googleapis.com)
