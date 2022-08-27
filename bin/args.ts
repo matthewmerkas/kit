@@ -2,8 +2,23 @@ import { ParsedArgs } from 'minimist'
 
 import { User } from './types'
 import { UserController } from '../lib/controllers/user'
+import MessageModel from '../lib/models/message'
+import RfidModel from '../lib/models/rfid'
+import UserModel from '../lib/models/user'
+import fs from 'fs'
+import path from 'path'
 
-export const parseArgs = (argv: ParsedArgs) => {
+const deleteFiles = async (filePath: string) => {
+  try {
+    fs.readdirSync(filePath).forEach(f => fs.rmSync(path.join(filePath, f)))
+  } catch (e) {
+    if (e.code !== 'ERR_FS_EISDIR') {
+      console.log(e)
+    }
+  }
+}
+
+export const parseArgs = async (argv: ParsedArgs) => {
   // Create user
   if (argv.createAdmin) {
     const controller = new UserController()
@@ -27,11 +42,42 @@ export const parseArgs = (argv: ParsedArgs) => {
       .catch((err: Error) => {
         console.error(err.message)
       })
-      .then(() => {
-        console.log('Exiting...')
-        process.exit(0)
-      })
   }
+  // Wipe database and delete user-generated public files
+  if (argv.reset) {
+    const prompt = require('prompt-sync')({ sigint: true })
+    console.log() // Add newline
+    const shouldContinue = prompt(
+      'This will drop all database collections and delete all user-' +
+        'generated public files (audio messages & profile pictures). Are you ' +
+        'sure you want to continue (y/N)? '
+    )
+    if (shouldContinue.toLowerCase() !== 'y') {
+      console.log('Exiting...')
+      process.exit(0)
+    }
+
+    await MessageModel.collection.drop().catch((err) => {
+      if (err.code === 'NamespaceNotFound') {
+        console.log("'messages' doesn't exist")
+      }
+    })
+    await RfidModel.collection.drop().catch((err) => {
+      if (err.codeName === 'NamespaceNotFound') {
+        console.log("'rfids' doesn't exist")
+      }
+    })
+    await UserModel.collection.drop().catch((err) => {
+      if (err.codeName === 'NamespaceNotFound') {
+        console.log("'users' doesn't exist")
+      }
+    })
+    const filePath = `${require.main?.path}/public/`
+    await deleteFiles(filePath + 'audio/')
+    await deleteFiles(filePath + 'avatars/')
+  }
+  console.log('Exiting...')
+  process.exit(0)
 }
 
 export const checkEnv = (array: string[], optional: boolean) => {

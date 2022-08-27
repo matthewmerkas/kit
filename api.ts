@@ -125,13 +125,13 @@ module.exports.io = io
 
 app.use(errorHandler)
 
-parseArgs(argv)
-
-server
-  .listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`)
-  })
-  .on('error', (err) => {
-    console.error('APP ERROR: ' + err.message)
-    process.exit()
-  })
+parseArgs(argv).then(() => {
+  server
+    .listen(port, hostname, () => {
+      console.log(`Server running at http://${hostname}:${port}/`)
+    })
+    .on('error', (err) => {
+      console.error('APP ERROR: ' + err.message)
+      process.exit()
+    })
+})
