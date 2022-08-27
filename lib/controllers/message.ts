@@ -71,7 +71,7 @@ export class MessageController extends BaseController {
                 const peer: User = doc.toObject()
                 const message = {
                   data: {
-                    peerId: peer._id?.toString() || '',
+                    peerId: user?._id?.toString() || '',
                   },
                   notification: {
                     title: user?.displayName,
