@@ -61,6 +61,7 @@ export const parseArgs = async (argv: ParsedArgs) => {
       process.exit(0)
     }
 
+    console.log('Dropping database tables...')
     await MessageModel.collection.drop().catch((err) => {
       if (err.code === 'NamespaceNotFound') {
         console.log("'messages' doesn't exist")
@@ -76,6 +77,7 @@ export const parseArgs = async (argv: ParsedArgs) => {
         console.log("'users' doesn't exist")
       }
     })
+    console.log('Deleting user-generated files...')
     const filePath = `${require.main?.path}/public/`
     await deleteFiles(filePath + 'audio/')
     await deleteFiles(filePath + 'avatars/')
