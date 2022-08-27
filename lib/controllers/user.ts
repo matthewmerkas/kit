@@ -205,6 +205,7 @@ export class UserController extends BaseController {
               : undefined,
         }
         this.Model.findOneAndUpdate(filter, user, { new: true })
+          .select(['-fcmToken'])
           .exec()
           .then((user: any) => {
             if (user == null) {
@@ -216,9 +217,11 @@ export class UserController extends BaseController {
               })
             }
             user.password = undefined
-            io.emit('update user', {
-              _id: user.toObject()._id,
-            })
+            if (!data.fcmToken) {
+              io.emit('update user', {
+                _id: user.toObject()._id,
+              })
+            }
             return resolve(user)
           })
           .catch((err: Error) => {

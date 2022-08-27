@@ -4,7 +4,7 @@ import { Request as JWTRequest } from 'express-jwt'
 import { BaseController } from '../controllers/base'
 import { BaseRequests } from '../../bin/requests'
 
-export const projectionMap = new Map([['user', { password: 0 }]])
+export const projectionMap = new Map([['user', { fcmToken: 0, password: 0 }]])
 
 function baseRouter(controller: BaseController, path: string) {
   const router = Router()

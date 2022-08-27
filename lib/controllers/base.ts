@@ -109,11 +109,8 @@ export class BaseController {
       validateUser(user)
       const filter = this.getFilter(id, user)
       if (this.validateId(id)) {
-        const query = this.Model.findOne(filter, projection)
-        for (const key of this.populateKeys) {
-          query.populate(key, '-password')
-        }
-        query
+        this.Model.findOne(filter, projection)
+          .populate(this.populateKeys, ['-fcmToken', '-password'])
           .exec()
           .then((doc: Document) => {
             if (doc == null && this.Model.modelName !== 'Rfid') {
@@ -151,9 +148,6 @@ export class BaseController {
       if (params.limit && !isNaN(params.limit)) {
         query = query.limit(params.limit)
       }
-      // for (const key of this.populateKeys) {
-      //   query.populate(key, '-password')
-      // }
       query
         .exec()
         .then((docs: Document[]) => {
