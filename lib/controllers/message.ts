@@ -79,16 +79,22 @@ export class MessageController extends BaseController {
                     body: 'New message',
                   },
                 }
-                return firebaseApp
-                  .messaging()
-                  .sendToDevice(peer.fcmToken, message)
-                  .then(() => {
-                    return resolve(docSend)
-                  })
-                  .catch((err) => {
-                    console.log(err)
-                    return resolve(docSend)
-                  })
+                if (peer.fcmToken) {
+                  return firebaseApp
+                    .messaging()
+                    .sendToDevice(peer.fcmToken, message)
+                    .then(() => {
+                      return resolve(docSend)
+                    })
+                    .catch((err) => {
+                      console.log(err)
+                    }).finally(() => {
+                      return resolve(docSend)
+                    })
+                } else {
+                  console.log('No FCM token for @' + peer.username)
+                  return resolve(docSend)
+                }
               })
           })
           .catch((err: any) => {
