@@ -24,6 +24,10 @@ Environment Variables:
 
 Create an admin user with `npm run createAdmin`
 
+Seed the database with `npm run seed`
+
+Clear the database + user-generated public files (audio messages & profile pictures) with `npm run reset`
+
 Run the development server with `npm run dev`
 
 ## Push Notifications
