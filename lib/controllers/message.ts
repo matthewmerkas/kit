@@ -16,7 +16,7 @@ import path from 'path'
 import { firebaseApp, io } from '../../api'
 import UserModel from '../models/user'
 
-const normalize = require('ffmpeg-normalize');
+const normalize = require('ffmpeg-normalize')
 
 export class MessageController extends BaseController {
   constructor() {
@@ -57,13 +57,12 @@ export class MessageController extends BaseController {
         output: filePath + outputFileName,
         loudness: {
           normalization: 'ebuR128',
-          target:
-            {
-              input_i: -23,
-              input_lra: 7.0,
-              input_tp: -2.0
-            }
-        }
+          target: {
+            input_i: -23,
+            input_lra: 7.0,
+            input_tp: -2.0,
+          },
+        },
       })
       fs.unlink(filePath + inputFileName, (err) => {
         if (err) console.log(err)
@@ -108,7 +107,8 @@ export class MessageController extends BaseController {
                     })
                     .catch((err) => {
                       console.log(err)
-                    }).finally(() => {
+                    })
+                    .finally(() => {
                       return resolve(docSend)
                     })
                 } else {
