@@ -16,13 +16,15 @@ import path from 'path'
 import { firebaseApp, io } from '../../api'
 import UserModel from '../models/user'
 
+const normalize = require('ffmpeg-normalize');
+
 export class MessageController extends BaseController {
   constructor() {
     super(MessageModel)
   }
 
   create = (data: Message, user?: User) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       validateUser(user)
       if (data == null && typeof data !== 'object') {
         return reject(new HttpError('Data must be an object'))
@@ -41,14 +43,32 @@ export class MessageController extends BaseController {
       // Store base64 audio data in file
       const date = DateTime.now().toFormat('yyMMdd-HHmmss')
       const rand = Math.random().toString(16).substr(2, 8)
-      const fileName = `message_${date}_${rand}.opus`
+      const inputFileName = `input_message_${date}_${rand}.opus`
+      const outputFileName = `message_${date}_${rand}.opus`
       const filePath = path.normalize(`${require.main?.path}/public/audio/`)
       fs.writeFileSync(
-        filePath + fileName,
+        filePath + inputFileName,
         Buffer.from(data.audio?.recordDataBase64, 'base64')
       )
       delete data.audio
-      data.audioFileName = fileName
+      // Normalise audio volume
+      await normalize({
+        input: filePath + inputFileName,
+        output: filePath + outputFileName,
+        loudness: {
+          normalization: 'ebuR128',
+          target:
+            {
+              input_i: -23,
+              input_lra: 7.0,
+              input_tp: -2.0
+            }
+        }
+      })
+      fs.unlink(filePath + inputFileName, (err) => {
+        if (err) console.log(err)
+      })
+      data.audioFileName = outputFileName
       data.direction = 'send'
       const docSend = new this.Model(data)
 
@@ -98,8 +118,11 @@ export class MessageController extends BaseController {
               })
           })
           .catch((err: any) => {
-            fs.unlink(filePath + fileName, (err) => {
-              console.log(err)
+            fs.unlink(filePath + inputFileName, (err) => {
+              if (err) console.log(err)
+            })
+            fs.unlink(filePath + outputFileName, (err) => {
+              if (err) console.log(err)
             })
             return reject(err)
           })
@@ -110,8 +133,11 @@ export class MessageController extends BaseController {
             return resolve(docSend)
           })
           .catch((err: any) => {
-            fs.unlink(filePath + fileName, (err) => {
-              console.log(err)
+            fs.unlink(filePath + inputFileName, (err) => {
+              if (err) console.log(err)
+            })
+            fs.unlink(filePath + outputFileName, (err) => {
+              if (err) console.log(err)
             })
             return reject(err)
           })
