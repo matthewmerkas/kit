@@ -10,7 +10,7 @@ import { Types } from 'mongoose'
 import { validateUser } from '../../bin/user'
 import { HttpError } from '../../bin/errors'
 import { Message, User } from '../../bin/types'
-import * as fs from 'fs'
+import fs from 'fs/promises'
 import { DateTime } from 'luxon'
 import path from 'path'
 import { firebaseApp, io } from '../../api'
@@ -46,7 +46,7 @@ export class MessageController extends BaseController {
       const inputFileName = `input_message_${date}_${rand}.opus`
       const outputFileName = `message_${date}_${rand}.opus`
       const filePath = path.normalize(`${require.main?.path}/public/audio/`)
-      fs.writeFileSync(
+      await fs.writeFile(
         filePath + inputFileName,
         Buffer.from(data.audio?.recordDataBase64, 'base64')
       )
@@ -64,9 +64,7 @@ export class MessageController extends BaseController {
           },
         },
       })
-      fs.unlink(filePath + inputFileName, (err) => {
-        if (err) console.log(err)
-      })
+      await fs.unlink(filePath + inputFileName).catch((err) => console.log(err))
       data.audioFileName = outputFileName
       data.direction = 'send'
       const docSend = new this.Model(data)
@@ -117,13 +115,13 @@ export class MessageController extends BaseController {
                 }
               })
           })
-          .catch((err: any) => {
-            fs.unlink(filePath + inputFileName, (err) => {
-              if (err) console.log(err)
-            })
-            fs.unlink(filePath + outputFileName, (err) => {
-              if (err) console.log(err)
-            })
+          .catch(async (err: any) => {
+            await fs
+              .unlink(filePath + inputFileName)
+              .catch((err) => console.log(err))
+            await fs
+              .unlink(filePath + outputFileName)
+              .catch((err) => console.log(err))
             return reject(err)
           })
       } else {
@@ -132,13 +130,13 @@ export class MessageController extends BaseController {
           .then(() => {
             return resolve(docSend)
           })
-          .catch((err: any) => {
-            fs.unlink(filePath + inputFileName, (err) => {
-              if (err) console.log(err)
-            })
-            fs.unlink(filePath + outputFileName, (err) => {
-              if (err) console.log(err)
-            })
+          .catch(async (err: any) => {
+            await fs
+              .unlink(filePath + inputFileName)
+              .catch((err) => console.log(err))
+            await fs
+              .unlink(filePath + outputFileName)
+              .catch((err) => console.log(err))
             return reject(err)
           })
       }

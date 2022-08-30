@@ -8,7 +8,7 @@ import * as crypto from 'crypto'
 import * as jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 
-import { jwtSecret, jwtRefreshSecret, io } from '../../api'
+import { jwtSecret, jwtRefreshSecret } from '../../api'
 import { HttpError } from '../../bin/errors'
 import { Hash, Login, Token, User } from '../../bin/types'
 import UserModel from '../models/user'
@@ -16,7 +16,7 @@ import { BaseController } from './base'
 import { isAdmin, validateUser } from '../../bin/user'
 import { DateTime } from 'luxon'
 import path from 'path'
-import fs from 'fs'
+import fs from 'fs/promises'
 
 const JWT_EXPIRY = process.env.JWT_EXPRIY ? process.env.JWT_EXPRIY : '1hr'
 const JWT_REFRESH_EXPIRY = process.env.JWT_REFRESH_EXPRIY
@@ -71,13 +71,13 @@ export class UserController extends BaseController {
   }
 
   // Store base64 image data in file
-  private writeToFile = (data: User) => {
+  private writeToFile = async (data: User) => {
     if (data.avatar) {
       const date = DateTime.now().toFormat('yyMMdd-HHmmss')
       const rand = Math.random().toString(16).substr(2, 8)
       const fileName = `avatar_${date}_${rand}.${data.avatar.extension}`
       const filePath = path.normalize(this.path)
-      fs.writeFileSync(
+      await fs.writeFile(
         filePath + fileName,
         Buffer.from(data.avatar.base64, 'base64')
       )
@@ -169,15 +169,13 @@ export class UserController extends BaseController {
           user.password = undefined
           return resolve(user)
         })
-        .catch((err: any) => {
+        .catch(async (err: any) => {
           if (err.code === 11000) {
             return reject(
               new Error(`Username '${err.keyValue.username}' is unavailable`)
             )
           }
-          fs.unlink(this.path + fileName, (err) => {
-            console.log(err)
-          })
+          await fs.unlink(this.path + fileName).catch((err) => console.log(err))
           return reject(err)
         })
     })
@@ -185,7 +183,7 @@ export class UserController extends BaseController {
 
   // Updates a user by ID
   set = (id: string, data: User, user?: User) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       validateUser(user)
       const filter = this.getFilter(id, user)
       if (!isAdmin(user)) {
@@ -196,7 +194,7 @@ export class UserController extends BaseController {
           throw new HttpError('Data must be an object')
         }
         const oldFileName = data.avatarFileName
-        const fileName = this.writeToFile(data)
+        const fileName = await this.writeToFile(data)
         const user: NonNullable<User> = {
           ...data,
           password:
@@ -207,22 +205,22 @@ export class UserController extends BaseController {
         this.Model.findOneAndUpdate(filter, user, { new: true })
           .select(['-fcmToken'])
           .exec()
-          .then((user: any) => {
+          .then(async (user: any) => {
             if (user == null) {
               return reject(new HttpError('Could not find User'))
             }
             if (fileName && oldFileName && fileName !== oldFileName) {
-              fs.unlink(this.path + oldFileName, (err) => {
-                console.log(err)
-              })
+              await fs
+                .unlink(this.path + oldFileName)
+                .catch((err) => console.log(err))
             }
             user.password = undefined
             return resolve(user)
           })
-          .catch((err: Error) => {
-            fs.unlink(this.path + fileName, (err) => {
-              console.log(err)
-            })
+          .catch(async (err: Error) => {
+            await fs
+              .unlink(this.path + fileName)
+              .catch((err) => console.log(err))
             return reject(err)
           })
       } else {
