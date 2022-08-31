@@ -63,6 +63,15 @@ export class MessageController extends BaseController {
             input_tp: -2.0,
           },
         },
+      }).catch(async (err: any) => {
+        console.log(err)
+        console.log('Normalisation failed. Falling back to original input file')
+        await fs
+          .unlink(filePath + outputFileName)
+          .catch((err) => console.log(err))
+        await fs
+          .rename(filePath + inputFileName, filePath + outputFileName)
+          .catch((err) => console.log(err))
       })
       await fs.unlink(filePath + inputFileName).catch((err) => console.log(err))
       data.audioFileName = outputFileName
