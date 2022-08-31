@@ -52,6 +52,7 @@ export class MessageController extends BaseController {
       )
       delete data.audio
       // Normalise audio volume
+      let normaliseError = false
       await normalize({
         input: filePath + inputFileName,
         output: filePath + outputFileName,
@@ -66,6 +67,7 @@ export class MessageController extends BaseController {
       }).catch(async (err: any) => {
         console.log(err)
         console.log('Normalisation failed. Falling back to original input file')
+        normaliseError = true
         await fs
           .unlink(filePath + outputFileName)
           .catch((err) => console.log(err))
@@ -73,7 +75,9 @@ export class MessageController extends BaseController {
           .rename(filePath + inputFileName, filePath + outputFileName)
           .catch((err) => console.log(err))
       })
-      await fs.unlink(filePath + inputFileName).catch((err) => console.log(err))
+      if (!normaliseError) {
+        await fs.unlink(filePath + inputFileName).catch((err) => console.log(err))
+      }
       data.audioFileName = outputFileName
       data.direction = 'send'
       const docSend = new this.Model(data)
