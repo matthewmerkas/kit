@@ -17,6 +17,11 @@ export interface Error {
   message: string
 }
 
+export interface FcmToken {
+  id: string
+  timestamp: Date
+}
+
 export interface Filter {
   _id?: string
   displayName?: string

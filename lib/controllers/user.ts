@@ -203,7 +203,7 @@ export class UserController extends BaseController {
               : undefined,
         }
         this.Model.findOneAndUpdate(filter, user, { new: true })
-          .select(['-fcmToken'])
+          .select(['-fcmTokens'])
           .exec()
           .then(async (user: any) => {
             if (user == null) {

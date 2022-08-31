@@ -111,7 +111,7 @@ export class BaseController {
       if (this.validateId(id)) {
         const query = this.Model.findOne(filter, projection)
         for (const key of this.populateKeys) {
-          query.populate(key, ['-fcmToken', '-password'])
+          query.populate(key, ['-fcmTokens', '-password'])
         }
         query
           .exec()
@@ -152,7 +152,7 @@ export class BaseController {
         query = query.limit(params.limit)
       }
       // for (const key of this.populateKeys) {
-      //   query.populate(key, ['-fcmToken', '-password'])
+      //   query.populate(key, ['-fcmTokens', '-password'])
       // }
       query
         .exec()
@@ -176,7 +176,7 @@ export class BaseController {
       if (this.validateId(id)) {
         const query = this.Model.findOneAndUpdate(filter, data, { new: true })
         for (const key of this.populateKeys) {
-          query.populate(key, ['-fcmToken', '-password'])
+          query.populate(key, ['-fcmTokens', '-password'])
         }
         query
           .exec()
@@ -218,12 +218,29 @@ export class BaseController {
                 new HttpError(`Could not update ${this.Model.modelName}`)
               )
             }
-            // Don't emit events if we're just updating the messaging token
-            const emitEvent = !(
-              this.Model.modelName === 'User' &&
-              'fcmToken' in data &&
-              Object.keys(data).length === 1
-            )
+            let emitEvent = true
+            if (this.Model.modelName === 'User' && 'fcmToken' in data) {
+              // Don't emit events if we're just updating FCM tokens
+              if (Object.keys(data).length === 1) {
+                emitEvent = false
+              }
+              // Update fcmTokens array
+              let found = false
+              const now = Date.now()
+              const pruneAge = 60 * 24 * 60 * 60 * 1000 // 60 days
+              data.fcmTokens = doc.toObject().fcmTokens || []
+              for (const [i, t] of data.fcmTokens.entries()) {
+                if (t.id === data.fcmToken) {
+                  found = true
+                  data.fcmTokens[i].timestamp = now
+                } else if (now - t.timestamp >= pruneAge) {
+                  data.fcmTokens.splice(i, 1)
+                }
+              }
+              if (!found) {
+                data.fcmTokens.push({ id: data.fcmToken, timestamp: now })
+              }
+            }
             return resolve(
               this.set(id, { ...doc.toObject(), ...data }, user, emitEvent)
             )

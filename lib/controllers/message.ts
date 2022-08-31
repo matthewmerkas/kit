@@ -9,7 +9,7 @@ import { BaseController } from './base'
 import { Types } from 'mongoose'
 import { validateUser } from '../../bin/user'
 import { HttpError } from '../../bin/errors'
-import { Message, User } from '../../bin/types'
+import { FcmToken, Message, User } from '../../bin/types'
 import fs from 'fs/promises'
 import { DateTime } from 'luxon'
 import path from 'path'
@@ -96,10 +96,13 @@ export class MessageController extends BaseController {
                     body: 'New message',
                   },
                 }
-                if (peer.fcmToken) {
+                if (peer.fcmTokens) {
+                  const ids = peer.fcmTokens.map((t: FcmToken) =>
+                    Object.keys(t.id)
+                  )
                   return firebaseApp
                     .messaging()
-                    .sendToDevice(peer.fcmToken, message)
+                    .sendToDevice(ids, message)
                     .then(() => {
                       return resolve(docSend)
                     })
