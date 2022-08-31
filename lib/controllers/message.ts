@@ -97,7 +97,7 @@ export class MessageController extends BaseController {
                   },
                 }
                 if (peer.fcmTokens) {
-                  const ids = peer.fcmTokens.map((token: FcmToken) => token.id);
+                  const ids = peer.fcmTokens.map((token: FcmToken) => token.id)
                   return firebaseApp
                     .messaging()
                     .sendToDevice(ids, message)
