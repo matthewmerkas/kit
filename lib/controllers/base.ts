@@ -158,6 +158,11 @@ export class BaseController {
       if (params.limit && !isNaN(params.limit)) {
         query = query.limit(params.limit)
       }
+      if (this.populateKeys.includes('nickname')) {
+        query.populate('nickname', ['nickname'], NicknameModel, {
+          userId: user?._id,
+        })
+      }
       // for (const key of this.populateKeys) {
       //   query.populate(key, ['-fcmTokens', '-password'])
       // }
