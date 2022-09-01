@@ -76,7 +76,9 @@ export class MessageController extends BaseController {
           .catch((err) => console.log(err))
       })
       if (!normaliseError) {
-        await fs.unlink(filePath + inputFileName).catch((err) => console.log(err))
+        await fs
+          .unlink(filePath + inputFileName)
+          .catch((err) => console.log(err))
       }
       data.audioFileName = outputFileName
       data.direction = 'send'

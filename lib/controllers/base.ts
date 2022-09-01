@@ -10,6 +10,7 @@ import { HttpError } from '../../bin/errors'
 import { QueryParams, SoftDeletes, User } from '../../bin/types'
 import { isAdmin, validateUser } from '../../bin/user'
 import { io } from '../../api'
+import NicknameModel from '../models/nickname'
 
 export class BaseController {
   Model: Model<any>
@@ -111,7 +112,13 @@ export class BaseController {
       if (this.validateId(id)) {
         const query = this.Model.findOne(filter, projection)
         for (const key of this.populateKeys) {
-          query.populate(key, ['-fcmTokens', '-password'])
+          if (key === 'nickname') {
+            query.populate(key, ['nickname'], NicknameModel, {
+              userId: user?._id,
+            })
+          } else {
+            query.populate(key, ['-fcmTokens', '-password'])
+          }
         }
         query
           .exec()

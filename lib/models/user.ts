@@ -10,6 +10,7 @@ export const UserSchema = new Schema(
     },
     avatarFileName: String,
     displayName: { type: String, required: true },
+    nickname: { type: String, ref: 'Nickname' },
     fcmTokens: [
       {
         id: String,

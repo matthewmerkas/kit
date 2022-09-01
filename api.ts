@@ -22,6 +22,7 @@ import UserModel from './lib/models/user'
 import RfidModel from './lib/models/rfid'
 import admin, { credential } from 'firebase-admin'
 import applicationDefault = credential.applicationDefault
+import NicknameModel from './lib/models/nickname'
 
 const argv = minimist(process.argv.slice(2))
 const guard = require('express-jwt-permissions')({
@@ -97,10 +98,11 @@ app.use(
 )
 app.use(`${prefix}/admin`, guard.check(['admin']))
 app.use(prefix, [
-  baseRouter(new BaseController(UserModel), 'admin/user'),
+  baseRouter(new BaseController(UserModel, ['nickname']), 'admin/user'),
   infoRouter(),
   messageRouter(),
   baseRouter(new BaseController(MessageModel, ['peer']), 'message'),
+  baseRouter(new BaseController(NicknameModel), 'nickname'),
   baseRouter(new BaseController(RfidModel, ['user']), 'rfid'),
   userRouter(),
 ])
