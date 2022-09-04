@@ -17,8 +17,9 @@ import { firebaseApp, io } from '../../api'
 import UserModel from '../models/user'
 import NicknameModel from '../models/nickname'
 
-// const normalize = require('ffmpeg-normalize') // Uncomment this line for x86/64
-const normalize: any = null // Uncomment this line for ARM
+// TODO: Uncomment x86/64 line before committing
+const normalize = require('ffmpeg-normalize') // Uncomment this line for x86/64
+// const normalize: any = null // Uncomment this line for ARM
 
 export class MessageController extends BaseController {
   constructor() {
