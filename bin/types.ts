@@ -78,5 +78,6 @@ export interface User extends Iterable, SoftDeletes {
   avatar?: Avatar
   avatarFileName?: string
   displayName?: string
+  nickname?: string
   roles?: string[]
 }

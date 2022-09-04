@@ -98,7 +98,7 @@ app.use(
 )
 app.use(`${prefix}/admin`, guard.check(['admin']))
 app.use(prefix, [
-  baseRouter(new BaseController(UserModel, ['nickname']), 'admin/user'),
+  baseRouter(new BaseController(UserModel, ['nicknames']), 'admin/user'),
   infoRouter(),
   messageRouter(),
   nicknameRouter(),

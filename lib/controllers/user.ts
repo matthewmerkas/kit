@@ -30,7 +30,7 @@ export class UserController extends BaseController {
   private path = `${require.main?.path}/public/avatars/`
 
   constructor() {
-    super(UserModel)
+    super(UserModel, ['nicknames'])
   }
 
   /* Crypto (based on https://blog.logrocket.com/building-a-password-hasher-in-node-js/) */

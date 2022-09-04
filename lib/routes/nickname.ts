@@ -1,9 +1,9 @@
 import { Router } from 'express'
 
-import { HttpError, sendError } from "../../bin/errors";
-import { NicknameController } from "../controllers/nickname";
-import { User } from "../../bin/types";
-import { Request as JWTRequest } from "express-jwt";
+import { HttpError, sendError } from '../../bin/errors'
+import { NicknameController } from '../controllers/nickname'
+import { User } from '../../bin/types'
+import { Request as JWTRequest } from 'express-jwt'
 
 function nicknameRouter() {
   const controller = new NicknameController()

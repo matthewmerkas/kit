@@ -112,8 +112,8 @@ export class BaseController {
       if (this.validateId(id)) {
         const query = this.Model.findOne(filter, projection)
         for (const key of this.populateKeys) {
-          if (key === 'nickname') {
-            query.populate(key, ['nickname'], NicknameModel, {
+          if (key === 'nicknames') {
+            query.populate(key, [], NicknameModel, {
               userId: user?._id,
             })
           } else {
@@ -128,7 +128,13 @@ export class BaseController {
                 new HttpError(`Could not find ${this.Model.modelName}`)
               )
             }
-            return resolve(doc)
+            // TODO: Unwind & project in Mongo aggregation pipeline
+            const obj = doc.toObject()
+            if (obj.nicknames?.length > 0) {
+              obj.nickname = obj.nicknames[0].value
+            }
+            delete obj.nicknames
+            return resolve(obj)
           })
           .catch((err: Error) => {
             return reject(err)
@@ -158,8 +164,8 @@ export class BaseController {
       if (params.limit && !isNaN(params.limit)) {
         query = query.limit(params.limit)
       }
-      if (this.populateKeys.includes('nickname')) {
-        query.populate('nickname', ['nickname'], NicknameModel, {
+      if (this.populateKeys.includes('nicknames')) {
+        query.populate('nicknames', [], NicknameModel, {
           userId: user?._id,
         })
       }
@@ -169,7 +175,17 @@ export class BaseController {
       query
         .exec()
         .then((docs: Document[]) => {
-          return resolve(docs)
+          // TODO: Unwind & project in Mongo aggregation pipeline
+          const objs = []
+          for (const doc of docs) {
+            const obj = doc.toObject()
+            if (obj.nicknames?.length > 0) {
+              obj.nickname = obj.nicknames[0].value
+            }
+            delete obj.nicknames
+            objs.push(obj)
+          }
+          return resolve(objs)
         })
         .catch((err: Error) => {
           return reject(err)

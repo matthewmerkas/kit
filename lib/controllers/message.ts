@@ -15,8 +15,10 @@ import { DateTime } from 'luxon'
 import path from 'path'
 import { firebaseApp, io } from '../../api'
 import UserModel from '../models/user'
+import NicknameModel from '../models/nickname'
 
-const normalize = require('ffmpeg-normalize')
+// const normalize = require('ffmpeg-normalize') // Uncomment this line for x86/64
+const normalize: any = null // Uncomment this line for ARM
 
 export class MessageController extends BaseController {
   constructor() {
@@ -26,7 +28,10 @@ export class MessageController extends BaseController {
   create = (data: Message, user?: User) => {
     return new Promise(async (resolve, reject) => {
       validateUser(user)
-      if (data == null && typeof data !== 'object') {
+      if (!user) {
+        return
+      }
+      if (!data && typeof data !== 'object') {
         return reject(new HttpError('Data must be an object'))
       }
       if (
@@ -48,33 +53,35 @@ export class MessageController extends BaseController {
       const filePath = path.normalize(`${require.main?.path}/public/audio/`)
       await fs.writeFile(
         filePath + inputFileName,
-        Buffer.from(data.audio?.recordDataBase64, 'base64')
+        Buffer.from(data.audio.recordDataBase64, 'base64')
       )
       delete data.audio
       // Normalise audio volume
-      let normaliseError = false
-      await normalize({
-        input: filePath + inputFileName,
-        output: filePath + outputFileName,
-        loudness: {
-          normalization: 'ebuR128',
-          target: {
-            input_i: -23,
-            input_lra: 7.0,
-            input_tp: -2.0,
+      let normaliseError = true
+      try {
+        await normalize({
+          input: filePath + inputFileName,
+          output: filePath + outputFileName,
+          loudness: {
+            normalization: 'ebuR128',
+            target: {
+              input_i: -23,
+              input_lra: 7.0,
+              input_tp: -2.0,
+            },
           },
-        },
-      }).catch(async (err: any) => {
+        })
+        normaliseError = false
+      } catch (err) {
         console.log(err)
         console.log('Normalisation failed. Falling back to original input file')
-        normaliseError = true
         await fs
           .unlink(filePath + outputFileName)
           .catch((err) => console.log(err))
         await fs
           .rename(filePath + inputFileName, filePath + outputFileName)
           .catch((err) => console.log(err))
-      })
+      }
       if (!normaliseError) {
         await fs
           .unlink(filePath + inputFileName)
@@ -99,12 +106,20 @@ export class MessageController extends BaseController {
             })
             return UserModel.findById(docReceive.user)
               .exec()
-              .then((doc: any) => {
+              .then(async (doc: any) => {
                 const peer: User = doc.toObject()
+                const nickname = await NicknameModel.findOne({
+                  userId: docReceive.peer,
+                  peerId: docReceive.user,
+                })
+                  .exec()
+                  .then((doc) => {
+                    return doc?.value as string
+                  })
                 const message = {
                   data: {
-                    peerId: user?._id?.toString() || '',
-                    peerDisplayName: user?.displayName || '',
+                    peerId: user._id?.toString() || '',
+                    peerDisplayName: nickname || user.displayName || '',
                   },
                   notification: {
                     title: user?.displayName,
@@ -182,10 +197,37 @@ export class MessageController extends BaseController {
         },
         { $unwind: '$peer' },
         {
+          $lookup: {
+            from: 'nicknames',
+            let: { peerId: '$peer._id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$peerId', '$$peerId'] },
+                      { $eq: ['$userId', new Types.ObjectId(userId)] },
+                    ],
+                  },
+                },
+              },
+            ],
+            as: 'peer.nickname',
+          },
+        },
+        {
+          $unwind: { path: '$peer.nickname', preserveNullAndEmptyArrays: true },
+        },
+        {
           $project: {
             createdAt: true,
             currentTime: true,
-            peer: { _id: true, avatarFileName: true, displayName: true },
+            peer: {
+              _id: true,
+              avatarFileName: true,
+              displayName: true,
+              nickname: '$peer.nickname.value',
+            },
           },
         },
         { $sort: { createdAt: -1 } },

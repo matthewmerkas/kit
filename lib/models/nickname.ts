@@ -4,7 +4,7 @@ export const NicknameSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, required: true },
     peerId: { type: Schema.Types.ObjectId, required: true },
-    nickname: { type: String, required: true },
+    value: { type: String, required: true },
   },
   {
     timestamps: true,

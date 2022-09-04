@@ -3,6 +3,7 @@ import { ParsedArgs } from 'minimist'
 import { User } from './types'
 import { UserController } from '../lib/controllers/user'
 import MessageModel from '../lib/models/message'
+import NicknameModel from '../lib/models/nickname'
 import RfidModel from '../lib/models/rfid'
 import UserModel from '../lib/models/user'
 import fs from 'fs'
@@ -67,6 +68,11 @@ export const parseArgs = async (argv: ParsedArgs) => {
     await MessageModel.collection.drop().catch((err) => {
       if (err.code === 'NamespaceNotFound') {
         console.log("'messages' doesn't exist")
+      }
+    })
+    await NicknameModel.collection.drop().catch((err) => {
+      if (err.code === 'NamespaceNotFound') {
+        console.log("'nicknames' doesn't exist")
       }
     })
     await RfidModel.collection.drop().catch((err) => {

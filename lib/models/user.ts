@@ -10,7 +10,7 @@ export const UserSchema = new Schema(
     },
     avatarFileName: String,
     displayName: { type: String, required: true },
-    nickname: { type: String, ref: 'Nickname' },
+    nicknames: [{ type: Schema.Types.ObjectId, ref: 'Nickname' }],
     fcmTokens: [
       {
         id: String,
@@ -23,6 +23,7 @@ export const UserSchema = new Schema(
     },
     roles: { type: Array },
     isDeleted: {
+      default: false,
       type: Boolean,
       required: true,
     },
