@@ -101,14 +101,17 @@ export class BaseController {
       if (isObjectIdOrHexString(value)) {
         return new Types.ObjectId(value)
       }
-
       return value
     }
 
     for (const [key, text] of Object.entries(params)) {
       try {
         params[key] = JSON.parse(text, reviver)
-      } catch (e) {}
+      } catch (e) {
+        params[key] = isObjectIdOrHexString(text)
+          ? new Types.ObjectId(text)
+          : text
+      }
     }
     return params
   }
