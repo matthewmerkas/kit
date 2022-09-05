@@ -6,7 +6,7 @@
 
 import * as crypto from 'crypto'
 import * as jwt from 'jsonwebtoken'
-import mongoose, { Document } from 'mongoose'
+import { Document, isObjectIdOrHexString } from 'mongoose'
 
 import { jwtSecret, jwtRefreshSecret } from '../../api'
 import { HttpError } from '../../bin/errors'
@@ -190,7 +190,7 @@ export class UserController extends BaseController {
       if (!isAdmin(user)) {
         delete data.roles
       }
-      if (mongoose.isValidObjectId(id)) {
+      if (isObjectIdOrHexString(id)) {
         if (typeof data !== 'object') {
           throw new HttpError('Data must be an object')
         }

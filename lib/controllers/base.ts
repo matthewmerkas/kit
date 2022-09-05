@@ -6,7 +6,7 @@
 
 import {
   Document,
-  isValidObjectId,
+  isObjectIdOrHexString,
   Model,
   PipelineStage,
   Types,
@@ -31,7 +31,7 @@ export class BaseController {
       if (this.Model.modelName === 'Rfid') {
         return true
       } else {
-        return isValidObjectId(id)
+        return isObjectIdOrHexString(id)
       }
     }
     return false
@@ -97,9 +97,10 @@ export class BaseController {
 
   // Parses JSON in filter query parameter
   parseParams = (params: QueryParams) => {
-    for (const [key, value] of Object.entries(params)) {
+    for (const [key, txt] of Object.entries(params)) {
       try {
-        params[key] = JSON.parse(value)
+        const val = JSON.parse(txt)
+        params[key] = isObjectIdOrHexString(val) ? new Types.ObjectId(val) : val
       } catch (e) {}
     }
     return params
