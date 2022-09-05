@@ -4,19 +4,24 @@
  * This controller module implements base CRUD methods
  */
 
-import mongoose, { Document, Model } from 'mongoose'
+import {
+  Document,
+  isValidObjectId,
+  Model,
+  PipelineStage,
+  Types,
+} from 'mongoose'
 
 import { HttpError } from '../../bin/errors'
 import { QueryParams, SoftDeletes, User } from '../../bin/types'
 import { isAdmin, validateUser } from '../../bin/user'
 import { io } from '../../api'
-import NicknameModel from '../models/nickname'
 
 export class BaseController {
   Model: Model<any>
   populateKeys: string[]
 
-  constructor(Model: mongoose.Model<any>, populateKeys: string[] = []) {
+  constructor(Model: Model<any>, populateKeys: string[] = []) {
     this.Model = Model
     this.populateKeys = populateKeys
   }
@@ -26,31 +31,68 @@ export class BaseController {
       if (this.Model.modelName === 'Rfid') {
         return true
       } else {
-        return mongoose.isValidObjectId(id)
+        return isValidObjectId(id)
       }
     }
     return false
   }
 
   // Filter results based on user ID
-  getFilter = (id?: string, user?: User) => {
+  getFilter = (id?: string, user?: User, objectIds = false) => {
     const exempt = ['Rfid']
     const filter: any = {}
     if (id) {
       if (this.Model.modelName === 'Rfid') {
-        filter.tagId = id
+        filter.tagId = objectIds ? new Types.ObjectId(id) : id
       } else {
-        filter._id = id
+        filter._id = objectIds ? new Types.ObjectId(id) : id
       }
     }
     if (
+      user &&
       !isAdmin(user) &&
       this.Model.schema.obj.user != null &&
       !exempt.includes(this.Model.modelName)
     ) {
-      filter.user = user?._id
+      filter.user = objectIds ? new Types.ObjectId(user._id) : user._id
     }
     return filter
+  }
+
+  getNicknamePipeline(userId: string) {
+    return [
+      {
+        $lookup: {
+          from: 'nicknames',
+          let: { peerId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$peerId', '$$peerId'] },
+                    { $eq: ['$userId', new Types.ObjectId(userId)] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'nickname',
+        },
+      },
+      {
+        $unwind: {
+          path: '$nickname',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      { $addFields: { nickname: '$nickname.value' } },
+      {
+        $project: {
+          nicknames: false,
+        },
+      },
+    ]
   }
 
   // Parses JSON in filter query parameter
@@ -101,40 +143,57 @@ export class BaseController {
   }
 
   // Retrieves a document by ID
-  get = (
-    id?: string,
-    projection?: Object | String | Array<String>,
-    user?: User
-  ) => {
+  get = (id?: string, projection?: Object, user?: User) => {
     return new Promise((resolve, reject) => {
       validateUser(user)
-      const filter = this.getFilter(id, user)
+      if (!user || !user._id) return
+
+      const filter = this.getFilter(id, user, true)
       if (this.validateId(id)) {
-        const query = this.Model.findOne(filter, projection)
+        const pipeline: PipelineStage[] = []
         for (const key of this.populateKeys) {
           if (key === 'nicknames') {
-            query.populate(key, [], NicknameModel, {
-              userId: user?._id,
-            })
+            pipeline.push(...this.getNicknamePipeline(user._id))
           } else {
-            query.populate(key, ['-fcmTokens', '-password'])
+            const obj = this.Model.schema.obj[key] as any
+            if (obj?.length > 0) {
+              const from = obj[0]?.ref
+              pipeline.push(
+                {
+                  $lookup: {
+                    from,
+                    localField: key,
+                    foreignField: '_id',
+                    as: key,
+                  },
+                },
+                {
+                  $project: {
+                    fcmTokens: false,
+                    password: false,
+                  },
+                }
+              )
+            }
           }
         }
-        query
+        if (filter) {
+          pipeline.push({ $match: filter })
+        }
+        if (projection) {
+          pipeline.push({ $project: projection })
+        }
+
+        this.Model.aggregate(pipeline)
           .exec()
-          .then((doc: Document) => {
+          .then((docs: Document[]) => {
+            const doc = docs[0]
             if (doc == null && this.Model.modelName !== 'Rfid') {
               return reject(
                 new HttpError(`Could not find ${this.Model.modelName}`)
               )
             }
-            // TODO: Unwind & project in Mongo aggregation pipeline
-            const obj = doc.toObject()
-            if (obj.nicknames?.length > 0) {
-              obj.nickname = obj.nicknames[0].value
-            }
-            delete obj.nicknames
-            return resolve(obj)
+            return resolve(doc)
           })
           .catch((err: Error) => {
             return reject(err)
@@ -146,46 +205,42 @@ export class BaseController {
   }
 
   // Retrieves a list of documents
-  getList = (
-    params: QueryParams,
-    projection?: Object | String | Array<String>,
-    user?: User
-  ) => {
+  getList = (params: QueryParams, projection?: Object, user?: User) => {
     return new Promise((resolve, reject) => {
       validateUser(user)
+      if (!user || !user._id) return
+
+      const limit = Number(params.limit)
+      delete params.limit
+      const sort = params.sort
+      delete params.sort
       const filter = Object.assign(
-        this.getFilter(undefined, user),
-        this.parseParams(params),
-        {
-          sort: undefined,
-        }
+        this.getFilter(undefined, user, true),
+        this.parseParams(params)
       )
-      let query = this.Model.find(filter, projection).sort(params.sort)
-      if (params.limit && !isNaN(params.limit)) {
-        query = query.limit(params.limit)
-      }
+      const pipeline: PipelineStage[] = []
       if (this.populateKeys.includes('nicknames')) {
-        query.populate('nicknames', [], NicknameModel, {
-          userId: user?._id,
-        })
+        pipeline.push(...this.getNicknamePipeline(user._id))
       }
-      // for (const key of this.populateKeys) {
-      //   query.populate(key, ['-fcmTokens', '-password'])
-      // }
-      query
+      if (filter) {
+        pipeline.push({ $match: filter })
+      }
+      if (projection) {
+        pipeline.push({ $project: projection })
+      }
+      if (sort) {
+        const direction = sort.charAt(0) === '-' ? -1 : 1
+        const key = sort.replace('-', '')
+        pipeline.push({ $sort: { [key]: direction } })
+      }
+      if (limit && !isNaN(limit)) {
+        pipeline.push({ $limit: limit })
+      }
+
+      this.Model.aggregate(pipeline)
         .exec()
         .then((docs: Document[]) => {
-          // TODO: Unwind & project in Mongo aggregation pipeline
-          const objs = []
-          for (const doc of docs) {
-            const obj = doc.toObject()
-            if (obj.nicknames?.length > 0) {
-              obj.nickname = obj.nicknames[0].value
-            }
-            delete obj.nicknames
-            objs.push(obj)
-          }
-          return resolve(objs)
+          return resolve(docs)
         })
         .catch((err: Error) => {
           return reject(err)

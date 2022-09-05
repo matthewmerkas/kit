@@ -29,9 +29,7 @@ export class MessageController extends BaseController {
   create = (data: Message, user?: User) => {
     return new Promise(async (resolve, reject) => {
       validateUser(user)
-      if (!user) {
-        return
-      }
+      if (!user) return
       if (!data && typeof data !== 'object') {
         return reject(new HttpError('Data must be an object'))
       }
