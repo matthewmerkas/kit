@@ -6,7 +6,7 @@
 
 import * as crypto from 'crypto'
 import * as jwt from 'jsonwebtoken'
-import mongoose from 'mongoose'
+import mongoose, { Document } from 'mongoose'
 
 import { jwtSecret, jwtRefreshSecret } from '../../api'
 import { HttpError } from '../../bin/errors'
@@ -206,7 +206,8 @@ export class UserController extends BaseController {
         this.Model.findOneAndUpdate(filter, user, { new: true })
           .select(['-fcmTokens'])
           .exec()
-          .then(async (user: any) => {
+          .then(async (doc: Document) => {
+            const user = doc.toObject()
             if (user == null) {
               return reject(new HttpError('Could not find User'))
             }
@@ -215,7 +216,6 @@ export class UserController extends BaseController {
                 .unlink(this.path + oldFileName)
                 .catch((err) => console.log(err))
             }
-            user.password = undefined
             user.nickname = await NicknameModel.findOne({
               userId: user._id,
               peerId: id,
@@ -224,6 +224,8 @@ export class UserController extends BaseController {
               .then((doc) => {
                 return doc?.value as string
               })
+            delete user.nicknames
+            delete user.password
             return resolve(user)
           })
           .catch(async (err: Error) => {
