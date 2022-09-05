@@ -166,12 +166,6 @@ export class BaseController {
                     foreignField: '_id',
                     as: key,
                   },
-                },
-                {
-                  $project: {
-                    fcmTokens: false,
-                    password: false,
-                  },
                 }
               )
             }
