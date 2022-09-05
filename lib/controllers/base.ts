@@ -158,16 +158,14 @@ export class BaseController {
             const obj = this.Model.schema.obj[key] as any
             if (obj?.length > 0) {
               const from = obj[0]?.ref
-              pipeline.push(
-                {
-                  $lookup: {
-                    from,
-                    localField: key,
-                    foreignField: '_id',
-                    as: key,
-                  },
-                }
-              )
+              pipeline.push({
+                $lookup: {
+                  from,
+                  localField: key,
+                  foreignField: '_id',
+                  as: key,
+                },
+              })
             }
           }
         }

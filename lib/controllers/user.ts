@@ -17,6 +17,7 @@ import { isAdmin, validateUser } from '../../bin/user'
 import { DateTime } from 'luxon'
 import path from 'path'
 import fs from 'fs/promises'
+import NicknameModel from '../models/nickname'
 
 const JWT_EXPIRY = process.env.JWT_EXPRIY ? process.env.JWT_EXPRIY : '1hr'
 const JWT_REFRESH_EXPIRY = process.env.JWT_REFRESH_EXPRIY
@@ -215,6 +216,14 @@ export class UserController extends BaseController {
                 .catch((err) => console.log(err))
             }
             user.password = undefined
+            user.nickname = await NicknameModel.findOne({
+              userId: user._id,
+              peerId: data._id,
+            })
+              .exec()
+              .then((doc) => {
+                return doc?.value as string
+              })
             return resolve(user)
           })
           .catch(async (err: Error) => {
