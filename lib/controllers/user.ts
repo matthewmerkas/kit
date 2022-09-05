@@ -218,7 +218,7 @@ export class UserController extends BaseController {
             user.password = undefined
             user.nickname = await NicknameModel.findOne({
               userId: user._id,
-              peerId: data._id,
+              peerId: id,
             })
               .exec()
               .then((doc) => {
