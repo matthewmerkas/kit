@@ -97,10 +97,17 @@ export class BaseController {
 
   // Parses JSON in filter query parameter
   parseParams = (params: QueryParams) => {
-    for (const [key, txt] of Object.entries(params)) {
+    const reviver = (key: string, value: any) => {
+      if (isObjectIdOrHexString(value)) {
+        return new Types.ObjectId(value)
+      }
+
+      return value
+    }
+
+    for (const [key, text] of Object.entries(params)) {
       try {
-        const val = JSON.parse(txt)
-        params[key] = isObjectIdOrHexString(val) ? new Types.ObjectId(val) : val
+        params[key] = JSON.parse(text, reviver)
       } catch (e) {}
     }
     return params
