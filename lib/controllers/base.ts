@@ -112,6 +112,29 @@ export class BaseController {
           ? new Types.ObjectId(text)
           : text
       }
+
+      // Cast ISO strings to Date objects for aggregation pipeline
+      if (key === 'createdAt' || key === 'updatedAt') {
+        const castDate = (key: string, value: any) => {
+          if (
+            typeof value === 'object' &&
+            !Array.isArray(value) &&
+            value !== null
+          ) {
+            for (const [k, v] of Object.entries(value)) {
+              value[k] = castDate(k, v)
+            }
+            return value
+          } else {
+            try {
+              return new Date(value)
+            } catch (e) {
+              return value
+            }
+          }
+        }
+        params = castDate(key, params)
+      }
     }
     return params
   }
