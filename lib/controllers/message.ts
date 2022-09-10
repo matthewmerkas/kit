@@ -116,6 +116,12 @@ export class MessageController extends BaseController {
                     return doc?.value as string
                   })
                 const message = {
+                  android: {
+                    notification: {
+                      channelId: 'messages',
+                    },
+                    priority: 'high'
+                  },
                   data: {
                     peerId: user._id?.toString() || '',
                     peerDisplayName: nickname || user.displayName || '',
