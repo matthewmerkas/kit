@@ -42,4 +42,4 @@ environment variable.
 
 You must grant the 'Firebase Cloud Messaging API Admin' role to your service account.
 
-You also need to enable [Cloud Messaging](https://console.cloud.google.com/marketplace/product/google/googlecloudmessaging.googleapis.com)
+You also need to enable [Firebase Cloud Messaging](https://console.cloud.google.com/apis/api/fcm.googleapis.com)
