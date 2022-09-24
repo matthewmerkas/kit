@@ -122,7 +122,7 @@ export class MessageController extends BaseController {
                   const tokens = peer.fcmTokens.map(
                     (token: FcmToken) => token.id
                   )
-                  if (tokens) {
+                  if (tokens?.length > 0) {
                     const notification: Notification = {
                       title: user?.displayName,
                       body: 'New message',
