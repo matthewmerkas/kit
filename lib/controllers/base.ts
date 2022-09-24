@@ -190,8 +190,8 @@ export class BaseController {
             pipeline.push(...this.getNicknamePipeline(user._id))
           } else {
             const obj = this.Model.schema.obj[key] as any
-            if (obj?.length > 0) {
-              const from = obj[0]?.ref
+            if (typeof obj?.ref === 'string') {
+              const from = obj.ref.toLowerCase() + 's'
               pipeline.push({
                 $lookup: {
                   from,
@@ -200,6 +200,17 @@ export class BaseController {
                   as: key,
                 },
               })
+              pipeline.push({ $unwind: '$' + key })
+              pipeline.push({
+                $project: {
+                  [key]: {
+                    fcmTokens: false,
+                    nicknames: false,
+                    password: false,
+                    roles: false,
+                  },
+                },
+              },)
             }
           }
         }
