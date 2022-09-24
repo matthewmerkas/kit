@@ -21,8 +21,8 @@ Environment Variables:
 - MIN_PASSWORD_LENGTH (default: 8)
 - EXTERNAL_URL\* (no default)
 
-*This is your public-facing web address with protocol and no trailing slash (e.g., https://mattopia.servegame.com) used
-for setting images on push notifications
+*This is your public-facing web address with protocol and no trailing slash (e.g., https://mattopia.servegame.com/kit)
+used for setting images on push notifications
 
 ## Development
 
