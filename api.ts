@@ -39,6 +39,7 @@ checkEnv(['MONGO_URI', 'JWT_SECRET', 'JWT_REFRESH_SECRET'], false)
 checkCredentials()
 checkEnv(
   [
+    'EXTERNAL_URL',
     'HOSTNAME',
     'PORT',
     'PREFIX',
