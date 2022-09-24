@@ -19,7 +19,7 @@ Environment Variables:
 - PORT (default: 3000)
 - PREFIX (default: /api)
 - MIN_PASSWORD_LENGTH (default: 8)
-- EXTERNAL_URL* (no default)
+- EXTERNAL_URL\* (no default)
 
 *This is your public-facing web address with protocol and no trailing slash (e.g., https://mattopia.servegame.com) used
 for setting images on push notifications

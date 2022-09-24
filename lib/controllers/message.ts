@@ -13,9 +13,10 @@ import { FcmToken, Message, User } from '../../bin/types'
 import fs from 'fs/promises'
 import { DateTime } from 'luxon'
 import path from 'path'
-import { externalUrl, firebaseApp, io } from "../../api";
+import { externalUrl, firebaseApp, io } from '../../api'
 import UserModel from '../models/user'
 import NicknameModel from '../models/nickname'
+import { Notification } from 'firebase-admin/lib/messaging'
 
 // TODO: Uncomment x86/64 line before committing
 const normalize = require('ffmpeg-normalize') // Uncomment this line for x86/64
@@ -118,8 +119,24 @@ export class MessageController extends BaseController {
 
                 // Push Notifications
                 if (peer.fcmTokens) {
-                  const tokens = peer.fcmTokens.map((token: FcmToken) => token.id)
+                  const tokens = peer.fcmTokens.map(
+                    (token: FcmToken) => token.id
+                  )
                   if (tokens) {
+                    const notification: Notification = {
+                      title: user?.displayName,
+                      body: 'New message',
+                    }
+                    if (externalUrl) {
+                      if (user.avatarFileName) {
+                        notification.imageUrl =
+                          externalUrl + '/public/avatars/' + user.avatarFileName
+                      } else {
+                        notification.imageUrl =
+                          externalUrl +
+                          '/public/avatars/person-circle-outline.svg'
+                      }
+                    }
                     const priority: 'high' | 'normal' | undefined = 'high'
                     const message = {
                       android: {
@@ -132,20 +149,8 @@ export class MessageController extends BaseController {
                         peerId: user._id?.toString() || '',
                         peerDisplayName: nickname || user.displayName || '',
                       },
-                      notification: {
-                        title: user?.displayName,
-                        body: 'New message',
-                      },
-                      tokens
-                    }
-                    if (externalUrl) {
-                      if (user.avatarFileName) {
-                        message.notification.imageUrl =
-                          externalUrl + '/public/avatars/' + user.avatarFileName
-                      } else {
-                        message.notification.imageUrl =
-                          externalUrl + '/public/avatars/person-circle-outline.svg'
-                      }
+                      notification,
+                      tokens,
                     }
 
                     return firebaseApp
