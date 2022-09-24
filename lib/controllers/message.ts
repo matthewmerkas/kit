@@ -20,6 +20,7 @@ import NicknameModel from '../models/nickname'
 // TODO: Uncomment x86/64 line before committing
 const normalize = require('ffmpeg-normalize') // Uncomment this line for x86/64
 // const normalize: any = null // Uncomment this line for ARM
+const externalUrl = process.env.EXTERNAL_URL
 
 export class MessageController extends BaseController {
   constructor() {
@@ -115,12 +116,22 @@ export class MessageController extends BaseController {
                   .then((doc) => {
                     return doc?.value as string
                   })
+                let imageUrl = ''
+                if (externalUrl) {
+                  if (user.avatarFileName) {
+                    imageUrl =
+                      externalUrl + '/public/avatars/' + user.avatarFileName
+                  } else {
+                    imageUrl =
+                      externalUrl + '/public/avatars/person-circle-outline.svg'
+                  }
+                }
                 const message = {
                   android: {
                     notification: {
                       channelId: 'messages',
                     },
-                    priority: 'high'
+                    priority: 'high',
                   },
                   data: {
                     peerId: user._id?.toString() || '',
@@ -128,6 +139,7 @@ export class MessageController extends BaseController {
                   },
                   notification: {
                     title: user?.displayName,
+                    imageUrl,
                     body: 'New message',
                   },
                 }
