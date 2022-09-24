@@ -116,39 +116,44 @@ export class MessageController extends BaseController {
                   .then((doc) => {
                     return doc?.value as string
                   })
-                let imageUrl = ''
-                if (externalUrl) {
-                  if (user.avatarFileName) {
-                    imageUrl =
-                      externalUrl + '/public/avatars/' + user.avatarFileName
-                  } else {
-                    imageUrl =
-                      externalUrl + '/public/avatars/person-circle-outline.svg'
-                  }
-                }
-                const message = {
-                  android: {
-                    notification: {
-                      channelId: 'messages',
-                    },
-                    priority: 'high',
-                  },
-                  data: {
-                    peerId: user._id?.toString() || '',
-                    peerDisplayName: nickname || user.displayName || '',
-                  },
-                  notification: {
-                    title: user?.displayName,
-                    imageUrl,
-                    body: 'New message',
-                  },
-                }
+
+                // Push Notifications
                 if (peer.fcmTokens) {
-                  const ids = peer.fcmTokens.map((token: FcmToken) => token.id)
-                  if (ids) {
+                  const tokens = peer.fcmTokens.map((token: FcmToken) => token.id)
+                  if (tokens) {
+                    let imageUrl = ''
+                    if (externalUrl) {
+                      if (user.avatarFileName) {
+                        imageUrl =
+                          externalUrl + '/public/avatars/' + user.avatarFileName
+                      } else {
+                        imageUrl =
+                          externalUrl + '/public/avatars/person-circle-outline.svg'
+                      }
+                    }
+                    const priority: 'high' | 'normal' | undefined = 'high'
+                    const message = {
+                      android: {
+                        notification: {
+                          channelId: 'messages',
+                        },
+                        priority,
+                      },
+                      data: {
+                        peerId: user._id?.toString() || '',
+                        peerDisplayName: nickname || user.displayName || '',
+                      },
+                      notification: {
+                        title: user?.displayName,
+                        imageUrl,
+                        body: 'New message',
+                      },
+                      tokens
+                    }
+
                     return firebaseApp
                       .messaging()
-                      .sendToDevice(ids, message)
+                      .sendMulticast(message)
                       .then(() => {
                         return resolve(docSend)
                       })
