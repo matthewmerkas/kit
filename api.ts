@@ -68,9 +68,8 @@ const app = express()
 const prefix = process.env.PREFIX || '/api'
 const exemptRoutes = [
   `${prefix}/info`,
-  `${prefix}/user/login`,
-  `${prefix}/user/refresh`,
-  `${prefix}/user/signup`,
+  `${prefix}/rfid`,
+  `${prefix}/user`,
 ] // Don't check JWT for these routes
 const port = Number(process.env.PORT) || 3000
 const hostname = process.env.HOSTNAME || '127.0.0.1'

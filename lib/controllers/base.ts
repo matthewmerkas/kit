@@ -244,9 +244,6 @@ export class BaseController {
   // Retrieves a list of documents
   getList = (params: QueryParams, projection?: Object, user?: User) => {
     return new Promise((resolve, reject) => {
-      validateUser(user)
-      if (!user || !user._id) return
-
       const limit = Number(params.limit)
       delete params.limit
       const sort = params.sort
@@ -256,7 +253,7 @@ export class BaseController {
         this.parseParams(params)
       )
       const pipeline: PipelineStage[] = []
-      if (this.populateKeys.includes('nicknames')) {
+      if (user?._id != null && this.populateKeys.includes('nicknames')) {
         pipeline.push(...this.getNicknamePipeline(user._id))
       }
       if (filter) {
