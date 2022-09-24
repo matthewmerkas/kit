@@ -13,7 +13,7 @@ import { FcmToken, Message, User } from '../../bin/types'
 import fs from 'fs/promises'
 import { DateTime } from 'luxon'
 import path from 'path'
-import { externalUrl, firebaseApp, io } from '../../api'
+import { firebaseApp, io } from '../../api'
 import UserModel from '../models/user'
 import NicknameModel from '../models/nickname'
 import { Notification } from 'firebase-admin/lib/messaging'
@@ -126,16 +126,6 @@ export class MessageController extends BaseController {
                     const notification: Notification = {
                       title: user?.displayName,
                       body: 'New message',
-                    }
-                    if (externalUrl) {
-                      if (user.avatarFileName) {
-                        notification.imageUrl =
-                          externalUrl + '/public/avatars/' + user.avatarFileName
-                      } else {
-                        notification.imageUrl =
-                          externalUrl +
-                          '/public/avatars/person-circle-outline.svg'
-                      }
                     }
                     const priority: 'high' | 'normal' | undefined = 'high'
                     const message = {
