@@ -70,6 +70,9 @@ const exemptRoutes = [
   `${prefix}/info`,
   `${prefix}/rfid`,
   `${prefix}/user`,
+  `${prefix}/user/login`,
+  `${prefix}/user/refresh`,
+  `${prefix}/user/signup`,
 ] // Don't check JWT for these routes
 const port = Number(process.env.PORT) || 3000
 const hostname = process.env.HOSTNAME || '127.0.0.1'
