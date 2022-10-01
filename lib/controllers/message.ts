@@ -18,9 +18,11 @@ import UserModel from '../models/user'
 import NicknameModel from '../models/nickname'
 import { Notification } from 'firebase-admin/lib/messaging'
 
-// TODO: Uncomment x86/64 line before committing
-const normalize = require('ffmpeg-normalize') // Uncomment this line for x86/64
-// const normalize: any = null // Uncomment this line for ARM
+let normalize: any = null
+if (process.arch === 'ia32' || process.arch === 'x64') {
+  // ffmpeg-normalize only supports x86/64
+  normalize = require('ffmpeg-normalize')
+}
 
 export class MessageController extends BaseController {
   constructor() {
