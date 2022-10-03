@@ -130,6 +130,7 @@ export class MessageController extends BaseController {
                       body: 'New message',
                     }
                     const priority: 'high' | 'normal' | undefined = 'high'
+                    const peerId = user._id?.toString() || ''
                     const message = {
                       android: {
                         notification: {
@@ -138,11 +139,12 @@ export class MessageController extends BaseController {
                         priority,
                       },
                       data: {
-                        peerId: user._id?.toString() || '',
+                        peerId,
                         peerDisplayName: nickname || user.displayName || '',
                       },
                       notification,
                       tokens,
+                      group: 'conversation-'+ peerId,
                     }
 
                     return firebaseApp
