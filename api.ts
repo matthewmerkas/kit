@@ -66,12 +66,14 @@ mongoose
 // Express
 const app = express()
 const prefix = process.env.PREFIX || '/api'
-const exemptRoutes = [`${prefix}/info`, `${prefix}/rfid`, `${prefix}/user`] // Don't check JWT for these routes
-const exemptUserRoutes = [
+const exemptRoutes = [
+  `${prefix}/info`,
+  `${prefix}/rfid`,
+  `${prefix}/user`,
   `${prefix}/user/login`,
   `${prefix}/user/refresh`,
   `${prefix}/user/signup`,
-]
+] // Don't check JWT for these routes
 const port = Number(process.env.PORT) || 3000
 const hostname = process.env.HOSTNAME || '127.0.0.1'
 
@@ -97,6 +99,11 @@ app.use(
     path: exemptRoutes,
   })
 )
+app.use(`${prefix}/user`, expressjwt({
+  secret: jwtSecret,
+  algorithms: ['HS256'],
+  credentialsRequired: false,
+}))
 app.use(`${prefix}/admin`, guard.check(['admin']))
 app.use(prefix, [
   baseRouter(new BaseController(UserModel, ['nicknames']), 'admin/user'),
@@ -105,15 +112,6 @@ app.use(prefix, [
   nicknameRouter(),
   baseRouter(new BaseController(MessageModel, ['peer']), 'message'),
   baseRouter(new BaseController(RfidModel, ['user']), 'rfid'),
-])
-app.use(prefix, [
-  expressjwt({
-    secret: jwtSecret,
-    algorithms: ['HS256'],
-    credentialsRequired: false,
-  }).unless({
-    path: exemptUserRoutes,
-  }),
   userRouter(),
 ])
 
