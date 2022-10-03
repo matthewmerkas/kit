@@ -43,7 +43,7 @@ export class BaseController {
     const filter: any = {}
     if (id) {
       if (this.Model.modelName === 'Rfid') {
-        filter.tagId = objectIds ? new Types.ObjectId(id) : id
+        filter.tagId = id
       } else {
         filter._id = objectIds ? new Types.ObjectId(id) : id
       }
