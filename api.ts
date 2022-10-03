@@ -109,7 +109,17 @@ app.use(prefix, [
   baseRouter(new BaseController(RfidModel, ['user']), 'rfid'),
 ])
 app.use(prefix, [
-  expressjwt({ secret: jwtSecret, algorithms: ['HS256'], credentialsRequired: false }),
+  expressjwt({
+    secret: jwtSecret,
+    algorithms: ['HS256'],
+    credentialsRequired: false,
+  }).unless({
+    path: [
+      `${prefix}/user/login`,
+      `${prefix}/user/refresh`,
+      `${prefix}/user/signup`,
+    ],
+  }),
   userRouter(),
 ])
 
