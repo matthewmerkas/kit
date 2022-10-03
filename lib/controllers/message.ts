@@ -144,7 +144,7 @@ export class MessageController extends BaseController {
                       },
                       notification,
                       tokens,
-                      group: 'conversation-'+ peerId,
+                      group: 'peer-'+ peerId,
                     }
 
                     return firebaseApp
