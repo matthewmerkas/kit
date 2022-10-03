@@ -107,6 +107,9 @@ app.use(prefix, [
   nicknameRouter(),
   baseRouter(new BaseController(MessageModel, ['peer']), 'message'),
   baseRouter(new BaseController(RfidModel, ['user']), 'rfid'),
+])
+app.use(prefix, [
+  expressjwt({ secret: jwtSecret, algorithms: ['HS256'], credentialsRequired: false }),
   userRouter(),
 ])
 
