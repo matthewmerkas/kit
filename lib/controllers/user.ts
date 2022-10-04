@@ -6,7 +6,7 @@
 
 import * as crypto from 'crypto'
 import * as jwt from 'jsonwebtoken'
-import { Document, isObjectIdOrHexString } from 'mongoose'
+import { Document, isObjectIdOrHexString, MongoServerError } from "mongoose";
 
 import { jwtSecret, jwtRefreshSecret } from '../../api'
 import { HttpError } from '../../bin/errors'
@@ -170,7 +170,7 @@ export class UserController extends BaseController {
           user.password = undefined
           return resolve(user)
         })
-        .catch(async (err: any) => {
+        .catch(async (err: MongoServerError) => {
           if (err.code === 11000) {
             return reject(
               new Error(`Username '${err.keyValue.username}' is unavailable`)
@@ -228,10 +228,15 @@ export class UserController extends BaseController {
             delete user.password
             return resolve(user)
           })
-          .catch(async (err: Error) => {
+          .catch(async (err: MongoServerError) => {
             await fs
               .unlink(this.path + fileName)
               .catch((err) => console.log(err))
+            if (err.code === 11000) {
+              return reject(
+                new Error(`Username '${err.keyValue.username}' is unavailable`)
+              )
+            }
             return reject(err)
           })
       } else {
