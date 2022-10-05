@@ -13,7 +13,7 @@ import { FcmToken, Message, User } from '../../bin/types'
 import fs from 'fs/promises'
 import { DateTime } from 'luxon'
 import path from 'path'
-import { firebaseApp, io } from '../../api'
+import { appName, firebaseApp, io } from "../../api";
 import UserModel from '../models/user'
 import NicknameModel from '../models/nickname'
 import { Notification } from 'firebase-admin/lib/messaging'
@@ -126,7 +126,7 @@ export class MessageController extends BaseController {
                   )
                   if (tokens?.length > 0) {
                     const notification: Notification = {
-                      title: user?.displayName,
+                      title: nickname || user.displayName || appName,
                       body: 'New message',
                     }
                     const priority: 'high' | 'normal' | undefined = 'high'

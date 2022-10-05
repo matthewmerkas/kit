@@ -30,6 +30,8 @@ const guard = require('express-jwt-permissions')({
   permissionsProperty: 'roles',
 })
 
+export const appName = 'KIT'
+
 // dotenv
 const env = dotenv.config()
 if (env.error) {

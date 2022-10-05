@@ -4,9 +4,11 @@
  * This controller module implements CRUD methods for retrieving information about the system
  */
 
+import { appName } from "../../api";
+
 export class InfoController {
   info = {
-    name: 'KIT',
+    name: appName,
   }
 
   // Retrieves info object
