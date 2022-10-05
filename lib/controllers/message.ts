@@ -111,8 +111,8 @@ export class MessageController extends BaseController {
               .then(async (doc: any) => {
                 const peer: User = doc.toObject()
                 const nickname = await NicknameModel.findOne({
-                  userId: docReceive.peer,
-                  peerId: docReceive.user,
+                  userId: docReceive.user,
+                  peerId: docReceive.peer,
                 })
                   .exec()
                   .then((doc) => {
