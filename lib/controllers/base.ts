@@ -142,7 +142,6 @@ export class BaseController {
   // Creates a document
   create = (data: any, user?: User) => {
     return new Promise((resolve, reject) => {
-      validateUser(user)
       if (data == null && typeof data !== 'object') {
         return reject(new HttpError('Data must be an object'))
       }
