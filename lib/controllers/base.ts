@@ -88,8 +88,10 @@ export class BaseController {
       },
       { $addFields: { nickname: '$nickname.value' } },
       {
-        $project: {
-          nicknames: false,
+        $set: {
+          displayNameLength: { $strLenCP: '$displayName' },
+          // TODO: Get length of nickname
+          usernameLength: { $strLenCP: '$username' },
         },
       },
     ]
@@ -257,6 +259,15 @@ export class BaseController {
       }
       if (filter) {
         pipeline.push({ $match: filter })
+        // Sort from the shortest matching search term
+        if (filter.$or?.length > 0) {
+          for (const key in filter.$or[0]) {
+            if (filter.$or[0][key]?.$regex?.length > 0) {
+              pipeline.push({ $sort: { displayNameLength: 1, usernameLength: 1 } })
+              break
+            }
+          }
+        }
       }
       if (projection) {
         pipeline.push({ $project: projection })
@@ -266,8 +277,18 @@ export class BaseController {
         const key = sort.replace('-', '')
         pipeline.push({ $sort: { [key]: direction } })
       }
+      pipeline.push({$sort: {createdAt: -1}})
       if (limit && !isNaN(limit)) {
         pipeline.push({ $limit: limit })
+      }
+      if (user?._id != null && this.populateKeys.includes('nicknames')) {
+        pipeline.push({
+          $project: {
+            displayNameLength: false,
+            nicknames: false,
+            usernameLength: false,
+          },
+        })
       }
 
       this.Model.aggregate(pipeline)
