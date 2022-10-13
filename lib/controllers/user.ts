@@ -152,6 +152,7 @@ export class UserController extends BaseController {
             return reject(err)
           })
       }
+      return resolve('Logged-out successfully')
     })
   }
 
