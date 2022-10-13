@@ -211,7 +211,7 @@ export class BaseController {
                     roles: false,
                   },
                 },
-              },)
+              })
             }
           }
         }
@@ -263,7 +263,9 @@ export class BaseController {
         if (filter.$or?.length > 0) {
           for (const key in filter.$or[0]) {
             if (filter.$or[0][key]?.$regex?.length > 0) {
-              pipeline.push({ $sort: { displayNameLength: 1, usernameLength: 1 } })
+              pipeline.push({
+                $sort: { displayNameLength: 1, usernameLength: 1 },
+              })
               break
             }
           }
@@ -277,7 +279,7 @@ export class BaseController {
         const key = sort.replace('-', '')
         pipeline.push({ $sort: { [key]: direction } })
       }
-      pipeline.push({$sort: {createdAt: -1}})
+      pipeline.push({ $sort: { createdAt: -1 } })
       if (limit && !isNaN(limit)) {
         pipeline.push({ $limit: limit })
       }

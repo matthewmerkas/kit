@@ -13,7 +13,7 @@ import { FcmToken, Message, User } from '../../bin/types'
 import fs from 'fs/promises'
 import { DateTime } from 'luxon'
 import path from 'path'
-import { appName, firebaseApp, io } from "../../api";
+import { appName, firebaseApp, io } from '../../api'
 import UserModel from '../models/user'
 import NicknameModel from '../models/nickname'
 import { Notification } from 'firebase-admin/lib/messaging'

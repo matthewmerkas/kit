@@ -38,6 +38,10 @@ export interface Login {
   password: string
 }
 
+export interface Logout {
+  fcmToken: string
+}
+
 export interface Message {
   _id?: string
   user?: string
@@ -78,6 +82,7 @@ export interface User extends Iterable, SoftDeletes {
   avatar?: Avatar
   avatarFileName?: string
   displayName?: string
+  fcmToken?: string
   nickname?: string
   roles?: string[]
 }

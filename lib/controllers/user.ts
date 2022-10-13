@@ -6,11 +6,11 @@
 
 import * as crypto from 'crypto'
 import * as jwt from 'jsonwebtoken'
-import { Document, isObjectIdOrHexString } from "mongoose";
+import { Document, isObjectIdOrHexString } from 'mongoose'
 
 import { jwtSecret, jwtRefreshSecret } from '../../api'
 import { HttpError } from '../../bin/errors'
-import { Hash, Login, Token, User } from '../../bin/types'
+import { Hash, Login, Logout, Token, User } from '../../bin/types'
 import UserModel from '../models/user'
 import { BaseController } from './base'
 import { isAdmin, validateUser } from '../../bin/user'
@@ -122,6 +122,39 @@ export class UserController extends BaseController {
     })
   }
 
+  logout = (data: Logout, user?: User) => {
+    return new Promise((resolve, reject) => {
+      validateUser(user)
+      if (data == null) {
+        return reject(new HttpError('Data must not be null'))
+      }
+      if (data.fcmToken) {
+        this.Model.findOne({ username: user?.username })
+          .exec()
+          .then((doc: Document) => {
+            // Disassociate FCM token on logout
+            const fcmTokens = doc.toObject().fcmTokens || []
+            for (const [i, t] of fcmTokens.entries()) {
+              if (t.id === data.fcmToken) {
+                delete fcmTokens[i]
+              }
+            }
+            this.Model.updateOne({ username: user?.username }, { fcmTokens })
+              .exec()
+              .then(() => {
+                return resolve('Logged-out successfully')
+              })
+              .catch((err: Error) => {
+                return reject(err)
+              })
+          })
+          .catch((err: Error) => {
+            return reject(err)
+          })
+      }
+    })
+  }
+
   refresh = (data: Token) => {
     return new Promise((resolve, reject) => {
       // https://gist.github.com/ziluvatar/a3feb505c4c0ec37059054537b38fc48
@@ -173,7 +206,9 @@ export class UserController extends BaseController {
         .catch(async (err: any) => {
           if (err.code === 11000) {
             return reject(
-              new HttpError(`Username '${err.keyValue.username}' is unavailable`)
+              new HttpError(
+                `Username '${err.keyValue.username}' is unavailable`
+              )
             )
           }
           await fs.unlink(this.path + fileName).catch((err) => console.log(err))
@@ -234,7 +269,9 @@ export class UserController extends BaseController {
               .catch((err) => console.log(err))
             if (err.code === 11000) {
               return reject(
-                new HttpError(`Username '${err.keyValue.username}' is unavailable`)
+                new HttpError(
+                  `Username '${err.keyValue.username}' is unavailable`
+                )
               )
             }
             return reject(err)

@@ -4,7 +4,7 @@
  * This controller module implements CRUD methods for retrieving information about the system
  */
 
-import { appName } from "../../api";
+import { appName } from '../../api'
 
 export class InfoController {
   info = {

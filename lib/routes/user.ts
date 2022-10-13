@@ -35,6 +35,19 @@ function userRouter() {
       })
   })
 
+  // Logs a user out (disassociates FCM token)
+  router.post(`/${path}/logout`, (req: JWTRequest, res) => {
+    const user: User | undefined = req.auth
+    controller
+      .logout(req.body, user)
+      .then((data) => {
+        res.json(data)
+      })
+      .catch((err) => {
+        sendError(res, err)
+      })
+  })
+
   // Refreshes a JWT
   router.post(`/${path}/refresh`, (req, res) => {
     controller
