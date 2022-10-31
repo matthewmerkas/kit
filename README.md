@@ -1,12 +1,6 @@
-# KIT (Keeping In Touch) Node.js Backend
+# KIT Backend
 
 Matthew Merkas 2022 Thesis Project
-
-Features:
-
-- Asynchronous audio messaging
-  - Real-time updates with Socket.IO
-- Speech recognition
 
 Environment Variables:
 
