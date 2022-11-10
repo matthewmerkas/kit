@@ -279,7 +279,7 @@ export class BaseController {
         const key = sort.replace('-', '')
         pipeline.push({ $sort: { [key]: direction } })
       }
-      pipeline.push({ $sort: { createdAt: -1 } })
+      pipeline.push({ $sort: { createdAt: 1 } })
       if (limit && !isNaN(limit)) {
         pipeline.push({ $limit: limit })
       }
